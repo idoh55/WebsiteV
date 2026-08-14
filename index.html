@@ -583,6 +583,7 @@
   }
   .card{
     position:relative;
+    grid-column:span 2; grid-row:span 1;
     border-radius:var(--radius);
     padding:26px;
     overflow:hidden;
@@ -598,11 +599,6 @@
     content:"";
     position:absolute; inset:0; z-index:-1;
   }
-  .card-1{grid-column:span 2; grid-row:span 2;}
-  .card-2{grid-column:span 2; grid-row:span 1;}
-  .card-3{grid-column:span 2; grid-row:span 2;}
-  .card-4{grid-column:span 2; grid-row:span 1;}
-  .card-5{grid-column:span 2; grid-row:span 1;}
 
   .card::before{background:var(--espresso);}
 
@@ -694,7 +690,6 @@
     font-weight:500;
     margin-bottom:6px;
   }
-  .card-1 h3{font-size:34px;}
   .card p.note{
     font-size:13.5px;
     opacity:0.82;
@@ -1025,8 +1020,6 @@
     .hero-visual{order:-1;}
     .story-grid{grid-template-columns:1fr; gap:48px;}
     .bento{grid-template-columns:repeat(2,1fr); grid-auto-rows:180px;}
-    .card-1{grid-column:span 2; grid-row:span 2;}
-    .card-2,.card-5{grid-column:span 2;}
     .footer-top{grid-template-columns:1fr 1fr; row-gap:40px;}
   }
   @media (max-width: 620px){
@@ -1037,7 +1030,7 @@
     .waitlist-form{flex-direction:column;}
     .bento{grid-template-columns:1fr; grid-auto-rows:auto;}
     .card{min-height:170px;}
-    .card-1,.card-2,.card-3,.card-4,.card-5{grid-column:span 1; grid-row:auto;}
+    .card{grid-column:span 1; grid-row:auto;}
     .footer-top{grid-template-columns:1fr;}
     .waitlist-count{gap:32px;}
     .nav-right{gap:10px;}
@@ -1672,12 +1665,11 @@
   function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
   function cardHtml(p, i){
-    const cls = 'card-' + ((i % 5) + 1);
     const bg = p.image ? `<div style="position:absolute;inset:0;z-index:-1;background:url('${esc(p.image)}') center/cover"></div>` : '';
     const badge = p.badge ? `<div class="placeholder-badge">${esc(p.badge)}</div>` : '';
     const note = p.note ? `<p class="note">${esc(p.note)}</p>` : '';
     const buy = p.comingSoon ? '' : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">הוסף לסל</button></div>`;
-    return `<div class="card ${cls}" style="--i:${i}">${bg}
+    return `<div class="card" style="--i:${i}">${bg}
       ${badge}
       <div class="mini-bag ${p.comingSoon ? 'status-soon' : 'status-live'}" title="${p.comingSoon ? 'בקרוב' : 'זמין'}"></div>
       <span class="tag-row">${esc(p.tag || '')}</span>
