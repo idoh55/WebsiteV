@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">I do — מבשלת קפה</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<template id="__bundler_thumbnail" data-bg-color="#f6f1e7">
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#1c1712"/><text x="24" y="30" font-size="13" font-family="Georgia, serif" fill="#f6f1e7">i</text><text x="24" y="46" font-size="13" font-family="Georgia, serif" fill="#f6f1e7">do</text><circle cx="46" cy="42" r="4" fill="#D6455C"/></svg>
+</template>
+<meta name="description" id="pageDesc" content="מבשלת קפה חדשה בקלייה קטנה, בהובלת מייסד — מהשקית הראשונה ועד האחרונה.">
+
+<!--
+  TAGLINE OPTIONS CONSIDERED (English, picked #2 for hero — plays on the
+  "I do" vow pun without tipping into wedding-kitsch):
+  1. "Say I do to better mornings."
+  2. "A small-batch promise, roasted daily."   <-- selected
+  3. "Coffee, done with intention."
+  4. "New roastery. Same devotion."
+  5. "To have, to hold, to hand-roast."
+
+  HEBREW NOTE: the wordmark "I do" is kept in Latin in both languages —
+  it's a proper-noun pun tied to the owner's Hebrew name (עידו / Ido), so
+  translating it would break the joke. Everything around it is translated
+  natively rather than literally; the Hebrew hero subhead leans on
+  "מחויבות" (commitment) / "הבטחה" (promise) to keep the same vow-like tone
+  without forcing an awkward direct translation of "I do" itself.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Frank+Ruhl+Libre:wght@400;500;600;700;900&amp;family=Rubik:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+
+<style>
+  /* ============ DESIGN TOKENS ============
+     Typography pairing (EN): Fraunces (warm, high-contrast serif) +
+     Space Grotesk (geometric grotesque, Palantir-style precision).
+     Typography pairing (HE, swapped via CSS variables when dir="rtl"):
+     Frank Ruhl Libre (elegant, warm Hebrew serif — same emotional role as
+     Fraunces) + Rubik (clean geometric Hebrew sans — same role as Space
+     Grotesk). Both are Google Fonts with full Hebrew + Latin coverage.
+  ========================================= */
+  :root{
+    --cream:#f6f1e7;
+    --cream-2:#efe7d8;
+    --ink:#1c1712;
+    --ink-soft:#3a322a;
+    --rust:#D6455C;
+    --rust-dark:#A8283D;
+    --gold:#b98a4e;
+    --moss: oklch(66% 0.12 165);
+    --moss-dark: oklch(50% 0.11 165);
+    --plum: oklch(58% 0.13 270);
+    --plum-dark: oklch(28% 0.08 270);
+    --ochre: oklch(72% 0.10 65);
+    --ochre-light: oklch(89% 0.05 65);
+    --espresso:#211712;
+    --espresso-2:#2c1f17;
+    --line: rgba(28,23,18,0.12);
+    --line-dark: rgba(246,241,231,0.14);
+    --radius: 22px;
+    --ease: cubic-bezier(.16,.84,.44,1);
+    --font-serif: 'Fraunces', serif;
+    --font-sans: 'Space Grotesk', sans-serif;
+  }
+
+  /* Hebrew font swap — driven purely by the dir attribute the language
+     switcher toggles on <html>, so no separate class bookkeeping needed. */
+  html[dir="rtl"]{
+    --font-serif: 'Frank Ruhl Libre', serif;
+    --font-sans: 'Rubik', sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3, .serif{
+    font-family:var(--font-serif);
+    font-weight:600;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  p{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  img,svg{display:block;max-width:100%;}
+  .container{
+    width:100%;
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 32px;
+  }
+  ::selection{background:var(--rust);color:var(--cream);}
+
+  /* ---------- reveal-on-scroll ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  }
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+  .reveal-stagger > *{transition-delay:calc(var(--i,0) * 90ms);}
+
+  /* ================= NAV ================= */
+  header{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:100;
+    padding:22px 0;
+    transition:background 0.4s var(--ease), padding 0.4s var(--ease), box-shadow .4s var(--ease), border-color .4s var(--ease);
+    border-bottom:1px solid transparent;
+  }
+  header.scrolled{
+    background:rgba(246,241,231,0.82);
+    backdrop-filter:blur(14px) saturate(160%);
+    -webkit-backdrop-filter:blur(14px) saturate(160%);
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+  }
+  .logo{
+    font-family:var(--font-serif);
+    font-weight:600;
+    font-size:22px;
+    letter-spacing:-0.02em;
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+    flex:none;
+  }
+  html[dir="rtl"] .logo{letter-spacing:0;}
+  .logo .dot{color:var(--rust);}
+  .nav-links{
+    display:flex;
+    gap:36px;
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:0.01em;
+  }
+  .nav-links a{
+    position:relative;
+    padding:4px 0;
+    opacity:0.82;
+    transition:opacity .25s var(--ease);
+  }
+  .nav-links a:hover{opacity:1;}
+  .nav-links a::after{
+    content:"";
+    position:absolute;
+    left:0;bottom:0;
+    width:0%;height:1.5px;
+    background:var(--rust);
+    transition:width .3s var(--ease);
+  }
+  html[dir="rtl"] .nav-links a::after{left:auto; right:0;}
+  .nav-links a:hover::after{width:100%;}
+  .nav-right{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    flex:none;
+  }
+  .lang-switch{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    background:transparent;
+    border:1.5px solid var(--line);
+    border-radius:100px;
+    padding:6px 6px;
+  }
+  .lang-switch button{
+    font-family:var(--font-sans);
+    font-size:12.5px;
+    font-weight:600;
+    background:transparent;
+    border:none;
+    cursor:pointer;
+    padding:6px 12px;
+    border-radius:100px;
+    color:var(--ink-soft);
+    transition:background .25s var(--ease), color .25s var(--ease);
+  }
+  .lang-switch button.active{
+    background:var(--ink);
+    color:var(--cream);
+  }
+  .nav-cta{
+    font-size:13.5px;
+    font-weight:600;
+    padding:10px 20px;
+    border-radius:100px;
+    background:var(--ink);
+    color:var(--cream);
+    transition:transform .35s var(--ease), background .35s var(--ease);
+    display:inline-block;
+  }
+  .nav-cta:hover{background:var(--rust); transform:translateY(-2px);}
+
+  /* ================= HERO ================= */
+  .hero{
+    position:relative;
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding-top:120px;
+    padding-bottom:80px;
+    overflow:hidden;
+  }
+  .hero-blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:0.55;
+    z-index:0;
+    animation:drift 16s ease-in-out infinite alternate;
+  }
+  .blob-1{width:520px;height:520px;background:radial-gradient(circle at 30% 30%, var(--rust), transparent 70%); top:-140px; right:-120px;}
+  .blob-2{width:420px;height:420px;background:radial-gradient(circle at 60% 40%, var(--moss), transparent 70%); bottom:-160px; left:-100px; animation-delay:-6s;}
+  html[dir="rtl"] .blob-1{right:auto; left:-120px;}
+  html[dir="rtl"] .blob-2{left:auto; right:-100px;}
+  @keyframes drift{
+    0%{transform:translate(0,0) scale(1);}
+    100%{transform:translate(30px,-20px) scale(1.06);}
+  }
+  html[dir="rtl"] .blob-1, html[dir="rtl"] .blob-2{animation-name:drift-rtl;}
+  @keyframes drift-rtl{
+    0%{transform:translate(0,0) scale(1);}
+    100%{transform:translate(-30px,-20px) scale(1.06);}
+  }
+
+  .hero-inner{
+    position:relative;
+    z-index:2;
+    display:grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap:60px;
+    align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--rust-dark);
+    margin-bottom:22px;
+  }
+  html[dir="rtl"] .eyebrow{letter-spacing:0.02em;}
+  .eyebrow::before{
+    content:"";
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--rust);
+    box-shadow:0 0 0 4px rgba(214,69,92,0.18);
+  }
+  .hero h1{
+    font-size:clamp(64px, 10.5vw, 148px);
+    line-height:0.92;
+    letter-spacing:-0.03em;
+  }
+  html[dir="rtl"] .hero h1{letter-spacing:0;}
+  .hero h1 .italic{
+    font-style:italic;
+    font-weight:400;
+    color:var(--rust);
+  }
+  html[dir="rtl"] .italic{font-style:normal; font-weight:700;}
+  .hero-sub{
+    margin-top:26px;
+    font-size:clamp(17px,2vw,20px);
+    line-height:1.55;
+    max-width:460px;
+    color:var(--ink-soft);
+  }
+  .hero-actions{
+    margin-top:38px;
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .btn{
+    font-family:var(--font-sans);
+    font-weight:600;
+    font-size:15px;
+    padding:15px 30px;
+    border-radius:100px;
+    border:none;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    transition:transform .35s var(--ease), box-shadow .35s var(--ease), background .35s var(--ease);
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:var(--cream);
+  }
+  .btn-primary:hover{
+    background:var(--rust);
+    transform:translateY(-3px);
+    box-shadow:0 14px 30px -12px rgba(214,69,92,0.55);
+  }
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink);
+    border:1.5px solid var(--line);
+  }
+  .btn-ghost:hover{border-color:var(--ink); transform:translateY(-3px);}
+
+  /* hero bag visual */
+  .hero-visual{
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    perspective:1200px;
+  }
+  .bag{
+    position:relative;
+    width:230px;
+    height:320px;
+    transform:rotate(-4deg);
+    transition:transform .6s var(--ease);
+  }
+  html[dir="rtl"] .bag{transform:rotate(4deg);}
+  .hero-visual:hover .bag{transform:rotate(-1deg) translateY(-6px);}
+  html[dir="rtl"] .hero-visual:hover .bag{transform:rotate(1deg) translateY(-6px);}
+  .bag-body{
+    position:absolute;
+    inset:0;
+    border-radius:14px 14px 26px 26px;
+    background:linear-gradient(160deg, var(--espresso-2), var(--ink) 60%, var(--espresso));
+    box-shadow: 0 40px 60px -25px rgba(28,23,18,0.45), inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  .bag-fold{
+    position:absolute;
+    top:0;left:0;right:0;
+    height:38px;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 3px, transparent 3px 14px);
+    border-radius:14px 14px 0 0;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .bag-valve{
+    position:absolute;
+    top:64px;left:50%;
+    transform:translateX(-50%);
+    width:20px;height:20px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #4a3a2c, #1a130d);
+    box-shadow:0 0 0 3px rgba(246,241,231,0.05);
+  }
+  .bag-label{
+    position:absolute;
+    left:16px;right:16px;top:110px;bottom:56px;
+    border-radius:10px;
+    background:linear-gradient(150deg, var(--rust), var(--rust-dark));
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    text-align:center;
+    padding:14px;
+  }
+  .bag-label .mark{
+    font-family:var(--font-serif);
+    font-style:italic;
+    font-size:26px;
+    color:var(--cream);
+  }
+  html[dir="rtl"] .bag-label .mark{font-style:normal;}
+  .bag-label .sub{
+    font-size:9.5px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:rgba(246,241,231,0.75);
+  }
+  html[dir="rtl"] .bag-label .sub{letter-spacing:0.03em;}
+  .bag-tag{
+    position:absolute;
+    right:-10px;
+    bottom:64px;
+    width:34px;height:52px;
+    background:var(--cream-2);
+    border-radius:4px;
+    box-shadow:0 8px 16px -8px rgba(0,0,0,0.35);
+    transform:rotate(8deg);
+  }
+  html[dir="rtl"] .bag-tag{right:auto; left:-10px; transform:rotate(-8deg);}
+  .bag-tag::before{
+    content:"";
+    position:absolute;
+    top:8px;left:50%;
+    transform:translateX(-50%);
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--espresso);
+  }
+  .scroll-cue{
+    position:absolute;
+    bottom:28px;left:50%;
+    transform:translateX(-50%);
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    font-size:11px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  html[dir="rtl"] .scroll-cue{letter-spacing:0.03em;}
+  .scroll-cue .line{
+    width:1px;height:34px;
+    background:linear-gradient(var(--ink-soft), transparent);
+    animation:pulse-line 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse-line{
+    0%,100%{opacity:0.25;}
+    50%{opacity:1;}
+  }
+
+  /* ================= SECTION SHARED ================= */
+  section{padding:150px 0;}
+  .kicker{
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--rust-dark);
+    margin-bottom:18px;
+    display:block;
+  }
+  html[dir="rtl"] .kicker{letter-spacing:0.02em;}
+  .section-head{
+    max-width:640px;
+    margin-bottom:64px;
+  }
+  .section-head h2{
+    font-size:clamp(36px,5vw,56px);
+    line-height:1.05;
+  }
+
+  /* ================= STORY ================= */
+  .story{
+    background:var(--cream);
+    position:relative;
+    overflow:hidden;
+  }
+  .story::before{
+    content:"";
+    position:absolute;
+    top:-220px; right:-160px;
+    width:600px;height:600px;
+    background:radial-gradient(circle, color-mix(in oklch, var(--ochre) 34%, transparent), transparent 70%);
+    filter:blur(60px);
+    pointer-events:none;
+    z-index:0;
+  }
+  html[dir="rtl"] .story::before{right:auto; left:-160px;}
+  .story-grid{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap:80px;
+    align-items:center;
+  }
+  .story-portrait{
+    position:relative;
+    aspect-ratio: 4/5;
+    border-radius:var(--radius);
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,255,255,0.5), transparent 45%),
+      linear-gradient(150deg, #e4d7bd, #cbb27f 55%, #a9875a);
+    display:flex;
+    align-items:flex-end;
+    padding:26px;
+    overflow:hidden;
+  }
+  .story-portrait::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(115deg, rgba(28,23,18,0.06) 0 2px, transparent 2px 26px);
+  }
+  html[dir="rtl"] .story-portrait::after{
+    background-image:
+      repeating-linear-gradient(65deg, rgba(28,23,18,0.06) 0 2px, transparent 2px 26px);
+  }
+  .story-portrait .cap{
+    position:relative;
+    z-index:1;
+    background:rgba(28,23,18,0.78);
+    color:var(--cream);
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    padding:10px 16px;
+    border-radius:100px;
+    backdrop-filter:blur(6px);
+  }
+  .story-copy p{
+    font-size:19px;
+    line-height:1.7;
+    color:var(--ink-soft);
+    margin-bottom:22px;
+  }
+  .story .kicker{color:var(--rust-dark);}
+  .story-copy p:first-of-type{
+    font-family:var(--font-serif);
+    font-size:clamp(26px,3vw,32px);
+    line-height:1.35;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .signature{
+    margin-top:32px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .signature .name{
+    font-family:var(--font-serif);
+    font-style:italic;
+    font-size:24px;
+  }
+  html[dir="rtl"] .signature .name{font-style:normal;}
+  .signature .role{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    letter-spacing:0.04em;
+  }
+
+  /* ================= PRODUCT / BENTO ================= */
+  .showcase{background:var(--cream-2); position:relative; overflow:hidden;}
+  .showcase::before{
+    content:"";
+    position:absolute;
+    bottom:-260px; left:-160px;
+    width:640px;height:640px;
+    background:radial-gradient(circle, color-mix(in oklch, var(--ochre) 34%, transparent), transparent 70%);
+    filter:blur(70px);
+    pointer-events:none;
+    z-index:0;
+  }
+  html[dir="rtl"] .showcase::before{left:auto; right:-160px;}
+  .showcase .container{position:relative; z-index:1;}
+  .bento{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    grid-auto-rows:200px;
+    grid-auto-flow:dense;
+    gap:20px;
+  }
+  .card{
+    position:relative;
+    border-radius:var(--radius);
+    padding:26px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    color:var(--cream);
+    transition:transform .5s var(--ease), box-shadow .5s var(--ease);
+    isolation:isolate;
+  }
+  .card:hover{transform:translateY(-6px); box-shadow:0 30px 50px -25px rgba(28,23,18,0.35);}
+  .card::before{
+    content:"";
+    position:absolute; inset:0; z-index:-1;
+  }
+  .card-1{grid-column:span 2; grid-row:span 2;}
+  .card-2{grid-column:span 2; grid-row:span 1;}
+  .card-3{grid-column:span 2; grid-row:span 2;}
+  .card-4{grid-column:span 2; grid-row:span 1;}
+  .card-5{grid-column:span 2; grid-row:span 1;}
+
+  .card-1::before{background:url('assets/card-mantiqueira.png') center/cover;}
+  .card-2::before{background:url('assets/card-chelchele.png') center/cover;}
+  .card-3::before{background:url('assets/card-bankogotiti.png') center/cover;}
+  .card-4::before{background:linear-gradient(155deg,var(--plum-dark),var(--ink) 60%,var(--espresso));}
+  .card-5::before{background:linear-gradient(155deg,var(--ochre-light),var(--ochre)); color:var(--ink);}
+  .card-5{color:var(--ink);}
+
+  .card .mini-bag{
+    position:absolute;
+    top:22px;right:22px;
+    width:46px;height:64px;
+    border-radius:6px 6px 10px 10px;
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.22);
+  }
+  html[dir="rtl"] .card .mini-bag{right:auto; left:22px;}
+  .card .mini-bag::before{
+    content:"";
+    position:absolute; top:12px; left:50%; transform:translateX(-50%);
+    width:8px;height:8px;border-radius:50%;
+    background:rgba(255,255,255,0.35);
+  }
+  .card-5 .mini-bag{background:rgba(28,23,18,0.08); border-color:rgba(28,23,18,0.18);}
+  .card-5 .mini-bag::before{background:rgba(28,23,18,0.3);}
+
+  .card .tag-row{
+    font-size:11.5px;
+    letter-spacing:0.06em;
+    opacity:0.75;
+    margin-bottom:8px;
+  }
+  .buy-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;position:relative;z-index:1;}
+  .buy-row .price{font-family:var(--font-serif);font-size:18px;font-weight:600;}
+  .card-1 .buy-row .price, .card-2 .buy-row .price, .card-3 .buy-row .price, .card-4 .buy-row .price{color:var(--cream);}
+  .add-to-cart{
+    font-family:var(--font-sans);
+    font-weight:600;
+    font-size:13px;
+    padding:9px 16px;
+    border-radius:100px;
+    border:1.5px solid currentColor;
+    background:rgba(255,255,255,0.12);
+    color:inherit;
+    cursor:pointer;
+    transition:transform .25s var(--ease), background .25s var(--ease);
+  }
+  .add-to-cart:hover{background:rgba(255,255,255,0.24); transform:translateY(-2px);}
+  .card-5 .buy-row .price, .card-5 .add-to-cart{color:var(--ink);}
+  .card-5 .add-to-cart{background:rgba(28,23,18,0.06);}
+
+  /* ---------- cart drawer ---------- */
+  .cart-overlay{position:fixed;inset:0;background:rgba(28,23,18,0.5);backdrop-filter:blur(2px);z-index:900;opacity:0;pointer-events:none;transition:opacity .35s var(--ease);}
+  .cart-overlay.open{opacity:1;pointer-events:auto;}
+  .cart-drawer{position:fixed;top:0;bottom:0;inset-inline-end:0;width:min(400px,92vw);background:var(--cream);z-index:901;box-shadow:-24px 0 60px rgba(28,23,18,0.28);transform:translateX(105%);transition:transform .4s var(--ease);display:flex;flex-direction:column;}
+  html[dir="rtl"] .cart-drawer{transform:translateX(-105%);}
+  .cart-drawer.open{transform:translateX(0);}
+  html[dir="rtl"] .cart-drawer.open{transform:translateX(0);}
+  .cart-head{display:flex;align-items:center;justify-content:space-between;padding:26px 28px 20px;border-bottom:1px solid var(--line);}
+  .cart-head h3{font-family:var(--font-serif);font-size:22px;margin:0;display:flex;align-items:baseline;gap:8px;}
+  .cart-head h3 .cart-head-count{font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--rust-dark);background:rgba(214,69,92,0.1);border-radius:100px;padding:2px 9px;}
+  .cart-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink-soft);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .2s var(--ease);}
+  .cart-close:hover{background:rgba(28,23,18,0.06);}
+  .cart-items{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0;padding:6px 20px;}
+  .cart-item{display:flex;align-items:center;gap:14px;padding:16px 8px;border-bottom:1px solid var(--line);}
+  .cart-item .swatch{width:44px;height:56px;border-radius:6px 6px 9px 9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-style:italic;font-size:13px;color:rgba(246,241,231,0.85);}
+  .cart-item .info{flex:1;min-width:0;}
+  .cart-item .info .name{font-weight:600;font-size:14.5px;margin-bottom:6px;}
+  .cart-item .qty-controls{display:inline-flex;align-items:center;gap:10px;background:rgba(28,23,18,0.05);border-radius:100px;padding:4px 6px;}
+  .cart-item .qty-controls button{width:20px;height:20px;border-radius:50%;border:none;background:var(--cream);box-shadow:0 1px 2px rgba(0,0,0,0.15);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .cart-item .qty-controls span{font-size:13px;font-weight:600;min-width:14px;text-align:center;}
+  .cart-item .line-total{font-family:var(--font-serif);font-weight:600;font-size:15px;white-space:nowrap;}
+  .cart-empty{color:var(--ink-soft);font-size:14.5px;text-align:center;padding:60px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .cart-empty svg{opacity:0.35;}
+  .cart-foot{padding:18px 28px 28px;border-top:1px solid var(--line);}
+  .cart-fields{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+  .cart-fields input{font-family:var(--font-sans);font-size:14px;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--cream);color:var(--ink);}
+  .cart-fields input:focus{outline:none;border-color:var(--rust);}
+  .cart-total{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;margin-bottom:16px;color:var(--ink-soft);}
+  .cart-total .amount{font-family:var(--font-serif);font-weight:600;font-size:22px;color:var(--ink);}
+  .cart-checkout{width:100%;background:var(--ink);color:var(--cream);border:none;padding:16px;border-radius:100px;font-family:var(--font-sans);font-weight:600;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .25s var(--ease), transform .25s var(--ease);}
+  .cart-checkout:hover{background:var(--rust); transform:translateY(-2px);}
+  .cart-checkout:disabled{opacity:0.6; cursor:default; transform:none;}
+  html[dir="rtl"] .cart-checkout svg{transform:scaleX(-1);}
+
+  .card h3{
+    font-family:var(--font-serif);
+    font-size:26px;
+    font-weight:500;
+    margin-bottom:6px;
+  }
+  .card-1 h3{font-size:34px;}
+  .card p.note{
+    font-size:13.5px;
+    opacity:0.82;
+    max-width:80%;
+  }
+  .placeholder-badge{
+    position:absolute;
+    top:22px;left:22px;
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:5px 10px;
+    border-radius:100px;
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.2);
+  }
+  html[dir="rtl"] .placeholder-badge{left:auto; right:22px; letter-spacing:0.02em;}
+  .card-5 .placeholder-badge{background:rgba(28,23,18,0.08); border-color:rgba(28,23,18,0.18);}
+
+  .showcase-note{
+    margin-top:34px;
+    font-size:14px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .showcase-note svg{flex:none;}
+
+  /* ================= WAITLIST (dark section) ================= */
+  .waitlist{
+    background:var(--espresso);
+    color:var(--cream);
+    position:relative;
+    overflow:hidden;
+  }
+  .waitlist::before{
+    content:"";
+    position:absolute;
+    top:-30%; left:50%;
+    width:900px;height:900px;
+    transform:translateX(-50%);
+    background:radial-gradient(circle, rgba(214,69,92,0.28), transparent 65%);
+    filter:blur(10px);
+  }
+  .waitlist-inner{
+    position:relative;
+    z-index:1;
+    max-width:640px;
+    margin:0 auto;
+    text-align:center;
+  }
+  .waitlist .kicker{color:#F0A9B4;}
+  .waitlist-count .stat:nth-child(2) .num{color:var(--moss);}
+  .waitlist h2{
+    font-size:clamp(38px,5.5vw,58px);
+    line-height:1.08;
+    margin-bottom:20px;
+  }
+  .waitlist h2 .italic{font-style:italic; color:var(--rust);}
+  .waitlist-sub{
+    font-size:17px;
+    color:rgba(246,241,231,0.72);
+    line-height:1.6;
+    max-width:480px;
+    margin:0 auto;
+  }
+  .waitlist-form{
+    margin-top:42px;
+    display:flex;
+    gap:12px;
+    max-width:440px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .waitlist-form input[type="email"]{
+    flex:1;
+    padding:16px 20px;
+    border-radius:100px;
+    border:1.5px solid rgba(246,241,231,0.22);
+    background:rgba(246,241,231,0.06);
+    color:var(--cream);
+    font-family:var(--font-sans);
+    font-size:15px;
+    outline:none;
+    transition:border-color .3s var(--ease), background .3s var(--ease);
+  }
+  .waitlist-form input::placeholder{color:rgba(246,241,231,0.45);}
+  .waitlist-form input:focus{border-color:var(--rust); background:rgba(246,241,231,0.1);}
+  .waitlist-form button{
+    background:var(--rust);
+    color:var(--cream);
+    border:none;
+    padding:16px 26px;
+    border-radius:100px;
+    font-family:var(--font-sans);
+    font-weight:600;
+    font-size:15px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .3s var(--ease), transform .3s var(--ease);
+  }
+  .waitlist-form button:hover{background:#E06478; transform:translateY(-2px);}
+  .waitlist-fine{
+    margin-top:16px;
+    font-size:12.5px;
+    color:rgba(246,241,231,0.5);
+  }
+  .waitlist-success{
+    display:none;
+    margin-top:42px;
+    padding:22px 26px;
+    border-radius:16px;
+    background:rgba(246,241,231,0.08);
+    border:1px solid rgba(246,241,231,0.16);
+    font-size:15px;
+  }
+  .waitlist-success.show{display:block;}
+  .waitlist-success strong{color:var(--rust); display:block; font-family:var(--font-serif); font-size:19px; font-weight:600; margin-bottom:4px;}
+
+  .waitlist-count{
+    margin-top:56px;
+    display:flex;
+    justify-content:center;
+    gap:52px;
+    flex-wrap:wrap;
+  }
+  .stat{text-align:center;}
+  .stat .num{
+    font-family:var(--font-serif);
+    font-size:34px;
+    font-weight:600;
+  }
+  .stat .label{
+    font-size:11.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:rgba(246,241,231,0.55);
+    margin-top:4px;
+  }
+  html[dir="rtl"] .stat .label{letter-spacing:0.02em;}
+
+  /* ================= FOOTER ================= */
+  footer{
+    background:var(--ink);
+    color:var(--cream);
+    padding:80px 0 30px;
+  }
+  .footer-top{
+    display:grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap:40px;
+    padding-bottom:60px;
+    border-bottom:1px solid var(--line-dark);
+  }
+  .footer-brand .logo{color:var(--cream); margin-bottom:16px;}
+  .footer-brand p{
+    font-size:14.5px;
+    color:rgba(246,241,231,0.6);
+    line-height:1.6;
+    max-width:280px;
+  }
+  .footer-col h4{
+    font-size:12px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:rgba(246,241,231,0.5);
+    margin-bottom:18px;
+    font-weight:600;
+    font-family:var(--font-sans);
+  }
+  html[dir="rtl"] .footer-col h4{letter-spacing:0.02em;}
+  .footer-col a, .footer-col span{
+    display:block;
+    font-size:14.5px;
+    color:rgba(246,241,231,0.82);
+    margin-bottom:12px;
+    transition:color .25s var(--ease), transform .25s var(--ease);
+  }
+  .footer-col a:hover{color:var(--rust); transform:translateX(3px);}
+  html[dir="rtl"] .footer-col a:hover{transform:translateX(-3px);}
+  .footer-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:16px;
+    padding-top:26px;
+    font-size:12.5px;
+    color:rgba(246,241,231,0.45);
+  }
+  .footer-socials{display:flex; gap:18px;}
+  .footer-socials a{
+    color:rgba(246,241,231,0.6);
+    transition:color .25s var(--ease);
+  }
+  .footer-socials a:hover{color:var(--rust);}
+
+  /* ================= OWNER EDIT MODE =================
+     A lightweight, client-side content editor for the site owner — click
+     any text to edit it in place, then export a ready-to-use updated
+     index.html. No backend, no database: the exported file simply has
+     the new text baked in as the new defaults. See the JS section for
+     how the export works. Remove or gate the entry button behind a
+     query param (e.g. ?edit=1) before the site goes fully public. */
+  .edit-entry-btn{
+    position:fixed;
+    bottom:22px;
+    inset-inline-end:22px;
+    z-index:300;
+    width:48px;height:48px;
+    border-radius:50%;
+    background:var(--ink);
+    color:var(--cream);
+    border:none;
+    font-size:18px;
+    cursor:pointer;
+    box-shadow:0 12px 26px -10px rgba(28,23,18,0.5);
+    transition:transform .3s var(--ease), background .3s var(--ease);
+  }
+  .edit-entry-btn:hover{background:var(--rust); transform:translateY(-3px) scale(1.05);}
+
+  body.i18n-editing [data-i18n],
+  body.i18n-editing [data-i18n-html],
+  body.i18n-editing .edit-placeholder-proxy{
+    outline:1.5px dashed rgba(214,69,92,0.55);
+    outline-offset:3px;
+    border-radius:4px;
+    cursor:text;
+    transition:background .2s var(--ease), outline-color .2s var(--ease);
+  }
+  body.i18n-editing [data-i18n]:hover,
+  body.i18n-editing [data-i18n-html]:hover,
+  body.i18n-editing .edit-placeholder-proxy:hover{
+    background:rgba(214,69,92,0.08);
+  }
+  body.i18n-editing [data-i18n]:focus,
+  body.i18n-editing [data-i18n-html]:focus,
+  body.i18n-editing .edit-placeholder-proxy:focus{
+    outline:1.5px solid var(--rust);
+    background:rgba(214,69,92,0.1);
+  }
+
+  .edit-toolbar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    z-index:400;
+    display:none;
+    background:var(--ink);
+    color:var(--cream);
+    padding:16px 24px;
+    box-shadow:0 -12px 30px -10px rgba(0,0,0,0.35);
+  }
+  .edit-toolbar.show{display:flex;}
+  .edit-toolbar-inner{
+    width:100%;
+    max-width:1180px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  .edit-toolbar-label{
+    font-size:13px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .edit-toolbar-label .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--rust);
+    animation:pulse-line 1.8s ease-in-out infinite;
+  }
+  .edit-toolbar-fields{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    font-size:13px;
+  }
+  .edit-toolbar-fields label{opacity:0.7; margin-inline-end:2px;}
+  .edit-placeholder-proxy{
+    background:rgba(246,241,231,0.08);
+    border:1px solid rgba(246,241,231,0.18);
+    padding:6px 10px;
+    border-radius:8px;
+    min-width:140px;
+    color:var(--cream);
+  }
+  .edit-toolbar-actions{display:flex; gap:10px;}
+  .edit-toolbar button{
+    font-family:var(--font-sans);
+    font-size:13px;
+    font-weight:600;
+    padding:10px 18px;
+    border-radius:100px;
+    border:none;
+    cursor:pointer;
+    transition:transform .25s var(--ease), background .25s var(--ease);
+  }
+  .edit-toolbar .btn-export{background:var(--rust); color:var(--cream);}
+  .edit-toolbar .btn-export:hover{background:#E06478; transform:translateY(-2px);}
+  .edit-toolbar .btn-exit{background:transparent; color:var(--cream); border:1.5px solid rgba(246,241,231,0.3);}
+  .edit-toolbar .btn-exit:hover{border-color:var(--cream);}
+  .edit-toast{
+    position:fixed;
+    bottom:92px;
+    left:50%;
+    transform:translateX(-50%) translateY(10px);
+    z-index:500;
+    background:var(--rust);
+    color:var(--cream);
+    padding:12px 22px;
+    border-radius:100px;
+    font-size:13.5px;
+    font-weight:600;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .35s var(--ease), transform .35s var(--ease);
+  }
+  .edit-toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 920px){
+    .hero-inner{grid-template-columns:1fr; gap:70px;}
+    .hero-visual{order:-1;}
+    .story-grid{grid-template-columns:1fr; gap:48px;}
+    .bento{grid-template-columns:repeat(2,1fr); grid-auto-rows:180px;}
+    .card-1{grid-column:span 2; grid-row:span 2;}
+    .card-2,.card-5{grid-column:span 2;}
+    .footer-top{grid-template-columns:1fr 1fr; row-gap:40px;}
+  }
+  @media (max-width: 620px){
+    .container{padding:0 22px;}
+    .nav-links{display:none;}
+    section{padding:100px 0;}
+    .hero{padding-top:110px;}
+    .waitlist-form{flex-direction:column;}
+    .bento{grid-template-columns:1fr; grid-auto-rows:auto;}
+    .card{min-height:170px;}
+    .card-1,.card-2,.card-3,.card-4,.card-5{grid-column:span 1; grid-row:auto;}
+    .footer-top{grid-template-columns:1fr;}
+    .waitlist-count{gap:32px;}
+    .nav-right{gap:10px;}
+    .edit-toolbar-inner{flex-direction:column; align-items:stretch;}
+    .edit-toolbar-fields{order:2;}
+    .edit-toolbar-actions{order:3; justify-content:stretch;}
+    .edit-toolbar-actions button{flex:1;}
+  }
+</style>
+<script src="./image-slot.js"></script>
+</head>
+<body>
+
+<header id="siteHeader" class="scrolled">
+  <div class="container">
+    <nav>
+      <a href="#top" class="logo">i do<span class="dot">.</span></a>
+      <div class="nav-links">
+        <a href="#coffee" data-i18n="nav.coffee">הקפה</a>
+        <a href="#story" data-i18n="nav.story">הסיפור</a>
+        <a href="#join" data-i18n="nav.join">הצטרפות</a>
+      </div>
+      <div class="nav-right">
+        <div class="lang-switch" role="group" aria-label="Language / שפה">
+          <button type="button" class="lang-opt" data-lang="en" onclick="switchLang('en')">EN</button>
+          <button type="button" class="lang-opt active" data-lang="he" onclick="switchLang('he')">עברית</button>
+        </div>
+        <a href="#join" class="nav-cta" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
+        <button type="button" id="cartToggle" aria-label="עגלת קניות" style="position:relative;background:none;border:1.5px solid var(--line);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          <span id="cartCount" style="display:none;position:absolute;top:-6px;left:-6px;background:var(--rust);color:var(--cream);font-size:11px;font-weight:700;border-radius:50%;width:18px;height:18px;align-items:center;justify-content:center"></span>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero-blob blob-1"></div>
+    <div class="hero-blob blob-2"></div>
+    <div class="container hero-inner">
+      <div style="position:relative">
+        <span class="eyebrow" data-i18n="hero.eyebrow">בקרוב</span>
+        <!-- Wordmark intentionally stays "I do." in both languages — see note in <head>. -->
+        <h1 style="font-family:var(--font-serif);font-weight:600;color:#1C1712">i do<span style="color:var(--rust)">.</span></h1>
+        <p class="hero-sub" data-i18n-html="hero.sub" style="color:#000000;background-color:#F1E1D4"><span style="color:#000000;font-size:25px">בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.</span></p>
+        <div class="hero-actions">
+          <a href="#join" class="btn btn-primary" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
+          <a href="#story" class="btn btn-ghost" data-i18n="cta.readStory">הרקע</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="bag">
+          <image-slot id="heroBag" shape="rounded" radius="14" placeholder="תמונת שקית הקפה" style="width:100%;height:100%;box-shadow:0 40px 60px -25px rgba(28,23,18,0.45)"></image-slot>
+          <div class="bag-tag"></div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-cue">
+      <span data-i18n="scroll.label">גללו</span>
+      <span class="line"></span>
+    </div>
+  </section>
+
+  <!-- ================= PRODUCT SHOWCASE ================= -->
+  <section class="showcase" id="coffee">
+    <div class="container">
+      <div class="section-head reveal is-visible">
+        <span class="kicker" data-i18n="showcase.kicker">התפריט (בקרוב)</span>
+        <h2 data-i18n-html="showcase.heading">השקיות עדיין בעיצוב.<br>הקפה לא מחכה.</h2>
+      </div>
+
+      <div class="bento reveal reveal-stagger is-visible" id="bentoGrid">
+        <p style="grid-column:1/-1;color:var(--ink-soft);padding:40px 0;text-align:center" id="bentoLoading">טוען מוצרים…</p>
+      </div>
+
+      <p class="showcase-note reveal is-visible">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v14M1 8h14" stroke="#A8283D" stroke-width="1.4" stroke-linecap="round"></path></svg>
+        <span data-i18n="showcase.note">עיצוב השקיות עוד בעבודה — אלה דוגמאות זמניות.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= STORY ================= -->
+  <section class="story" id="story">
+    <div class="container story-grid">
+      <div class="reveal is-visible">
+        <div class="story-portrait">
+          <span class="cap" data-i18n="story.portraitCap">עידו · מייסד וקולה</span>
+        </div>
+      </div>
+      <div class="story-copy reveal is-visible">
+        <span class="kicker" data-i18n="story.kicker">הסיפור&nbsp;</span>
+        <p data-i18n="story.p1">הסיפור</p>
+        <p data-i18n="story.p2">I do הוא בית קלייה שרק עכשיו יוצא לדרך — בן אדם אחד, קולה קטן ומדויק, ותשומת לב גדולה לכל שקית.</p>
+        <p data-i18n="story.p3">כל הקפה שלנו נקלה בדיוק רב, עובר טעימה לפני שהוא יוצא מהדלת, ונארז ביד. משמעות השם של בית הקלייה היא המחויבות לקפה.</p>
+        <div class="signature">
+          <span class="name" data-i18n="story.sigName">עידו</span>
+          <span class="role" data-i18n-html="story.sigRole">מייסד, קולה,<br>וכרגע גם כל הצוות:)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WAITLIST ================= -->
+  <section class="waitlist" id="join">
+    <div class="container waitlist-inner">
+      <span class="kicker" data-i18n="waitlist.kicker">בקרוב</span>
+      <h2 class="reveal is-visible" data-i18n-html="waitlist.h2">למצטרפים אליי לדרך</h2>
+      <p class="waitlist-sub reveal is-visible" data-i18n="waitlist.sub">תהיו הראשונים לדעת מתי הקולה מתחילה לעבוד, מתי השקיות הראשונות יוצאות, ומתי נפתחת הרשמה מוקדמת במחיר מיוחד. מייל אחד, בדיוק כשצריך — ותו לא.</p>
+
+      <form class="waitlist-form reveal is-visible" id="waitlistForm">
+        <input type="email" id="waitlistEmail" data-i18n-placeholder="waitlist.emailPlaceholder" placeholder="Your Email" required="" aria-label="Email address">
+        <button type="submit" data-i18n="waitlist.submit">הצטרפו לרשימה</button>
+      </form>
+      <p class="waitlist-fine reveal is-visible" data-i18n="waitlist.fine"><br></p>
+
+      <div class="waitlist-success" id="waitlistSuccess">
+        <strong data-i18n="waitlist.successStrong">אתם ברשימה.</strong>
+        <span data-i18n="waitlist.successText">נשלח לכם מייל ברגע שהקלייה הראשונה מוכנה לצאת.</span>
+      </div>
+
+      <div class="waitlist-count reveal reveal-stagger is-visible">
+        <div class="stat" style="--i:0"><div class="num">1</div><div class="label" data-i18n="stat1.label">מייסד</div></div>
+        <div class="stat" style="--i:1"><div class="num">100%</div><div class="label" data-i18n="stat2.label">קלייה מוקפדת</div></div>
+        <div class="stat" style="--i:2"><div class="num">∞</div><div class="label" data-i18n="stat3.label">כוסות שנטעמו</div></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= CART DRAWER ================= -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3>העגלה שלך <span class="cart-head-count" id="cartHeadCount" style="display:none"></span></h3>
+    <button type="button" class="cart-close" id="cartClose" aria-label="סגור עגלה">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-foot">
+    <div class="cart-fields">
+      <input type="text" id="checkoutName" placeholder="שם מלא" required>
+      <input type="tel" id="checkoutPhone" placeholder="טלפון נייד" required>
+    </div>
+    <div class="cart-total"><span>סה"כ</span><span class="amount" id="cartTotal">0 ₪</span></div>
+    <button type="button" class="cart-checkout" id="cartCheckout">
+      מעבר לתשלום
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+    </button>
+  </div>
+</aside>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#top" class="logo">i do<span class="dot">.</span></a>
+        <p data-i18n="footer.brandDesc">בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.contactH4">יצירת קשר</h4>
+        <a href="mailto:hello@idocoffee.co">hello@idocoffee.co</a>
+        <span data-i18n="footer.basedIn">מיקום — יעודכן בקרוב</span>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.followH4">עקבו אחרינו</h4>
+        <a href="#" aria-label="Instagram">Instagram</a>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.siteH4">ניווט</h4>
+        <a href="#coffee" data-i18n="nav.coffee">הקפה</a>
+        <a href="#story" data-i18n="nav.story">הסיפור</a>
+        <a href="#join" data-i18n="nav.join">הצטרפות</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-i18n="footer.copyright">© 2026 I do Coffee Roastery. כל הזכויות שמורות.</span>
+      <div class="footer-socials">
+        <a href="#">IG</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ OWNER CONTENT-EDIT MODE ============
+     Small self-service editor: click the pencil, click any text on the
+     page to edit it, then export an updated file. Nothing is sent
+     anywhere — the export is generated entirely in the browser. Remove
+     this block (and the matching CSS/JS) once the site is publicly live
+     and copy is finalized, or gate the entry button behind a URL flag. -->
+
+
+
+
+
+<script>
+  /* ============ i18n dictionary ============ */
+  /* I18N_DATA_START */
+  const I18N = {
+    "en": {
+        "__title": "I do — Coffee Roastery",
+        "__desc": "I do — a new small-batch coffee roastery, founder-led from the very first bag.",
+        "nav.story": "Story",
+        "nav.coffee": "Coffee",
+        "nav.join": "Join",
+        "cta.joinWaitlist": "Join the waitlist",
+        "cta.readStory": "Read the story",
+        "hero.eyebrow": "A new roastery — opening soon",
+        "hero.sub": "A small-batch promise, roasted daily. Founder-led coffee, built from the first bean — no shortcuts, no committee, just Ido and a roaster.",
+        "bag.sub": "Single Origin · 250g",
+        "scroll.label": "Scroll",
+        "story.kicker": "Our story",
+        "story.portraitCap": "Ido · Founder & Roaster",
+        "story.p1": "This started as a question I couldn't stop asking: why does “fine” coffee have to mean boring coffee?",
+        "story.p2": "I do is a coffee roastery just getting started — one person, one small roaster, and an unreasonable amount of care per batch. No investors, no supply-chain shortcuts, no roast profile we haven't tasted ourselves a dozen times over.",
+        "story.p3": "Every bag is roasted in small runs, cupped before it ships, and packed by hand. The name is a promise as much as it is a pun — a commitment to doing this properly, one harvest at a time.",
+        "story.sigName": "Ido",
+        "story.sigRole": "Founder, Roaster,<br>and current one-person team",
+        "showcase.kicker": "The lineup (soon)",
+        "showcase.heading": "Bags are still in design.<br>The coffee isn't waiting.",
+        "badge.mockup": "Bag mockup · placeholder",
+        "badge.soon": "Soon",
+        "badge.progress": "Design in progress",
+        "badge.limited": "Limited edition",
+        "card1.tag": "Single Origin · South America",
+        "card1.title": "Crowd Favorite",
+        "card1.note": "dark chocolate · hazelnut · caramel — round, sweet, and easy to love from the first cup.",
+        "card2.tag": "Washed · Guji, Ethiopia",
+        "card2.title": "Washed Guji",
+        "card2.note": "peach · jasmine · honey — interesting without going wild; gentle enough for milk drinks, espresso, and filter alike.",
+        "card3.tag": "Co-ferment · Apple",
+        "card3.title": "Apple",
+        "card3.note": "Coffee where, during processing at the fermentation stage, the grower added apples that fermented together with the coffee to create an extraordinary flavor. A small edition, recommended for anyone chasing a special coffee experience and open to trying something new and interesting.",
+        "card4.tag": "Subscription",
+        "card4.title": "Monthly Bag",
+        "card4.note": "you choose which bag arrives each month — a standing discount, early access to limited drops, and full flexibility to skip or cancel anytime.",
+        "card5.tag": "Merch · Goods",
+        "card5.title": "T-Shirt",
+        "showcase.note": "Real bag artwork is in the works — these are placeholder mockups sized and shaped to drop the final designs right in.",
+        "waitlist.kicker": "Coming soon",
+        "waitlist.h2": "Say <span class=\"italic\">I do</span><br>to early access.",
+        "waitlist.sub": "Be first to know when the roaster fires up, the first bags ship, and early-access pricing opens. One email, when it matters — nothing else.",
+        "waitlist.emailPlaceholder": "you@email.com",
+        "waitlist.submit": "Join waitlist",
+        "waitlist.fine": "No spam, ever — just a note when the first roast ships.",
+        "waitlist.successStrong": "You're on the list.",
+        "waitlist.successText": "We'll email you the moment the first roast is ready to ship.",
+        "stat1.label": "Founder",
+        "stat2.label": "Small batch",
+        "stat3.label": "Cups tasted",
+        "footer.brandDesc": "A small-batch coffee roastery, founder-led from the very first bag. Currently roasting, tasting, and getting ready to ship.",
+        "footer.contactH4": "Contact",
+        "footer.basedIn": "Based in — TBD",
+        "footer.followH4": "Follow",
+        "footer.siteH4": "Site",
+        "footer.copyright": "© 2026 I do Coffee Roastery. All rights reserved."
+    },
+    "he": {
+        "__title": "I do — מבשלת קפה",
+        "__desc": "מבשלת קפה חדשה בקלייה קטנה, בהובלת מייסד — מהשקית הראשונה ועד האחרונה.",
+        "nav.story": "הסיפור",
+        "nav.coffee": "הקפה",
+        "nav.join": "הצטרפות",
+        "cta.joinWaitlist": "אני רוצה עדכונים!",
+        "cta.readStory": "הרקע",
+        "hero.eyebrow": "בקרוב",
+        "hero.sub": "<span style=\"color:#000000;font-size:25px\">בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.</span>",
+        "bag.sub": "מקור יחיד · 250 גרם",
+        "scroll.label": "גללו",
+        "story.kicker": "הסיפור",
+        "story.portraitCap": "עידו · מייסד וקולה",
+        "story.p1": "הסיפור",
+        "story.p2": "I do הוא בית קלייה שרק עכשיו יוצא לדרך — בן אדם אחד, קולה קטן ומדויק, ותשומת לב גדולה לכל שקית.",
+        "story.p3": "כל הקפה שלנו נקלה בדיוק רב, עובר טעימה לפני שהוא יוצא מהדלת, ונארז ביד. משמעות השם של בית הקלייה היא המחויבות לקפה.",
+        "story.sigName": "עידו",
+        "story.sigRole": "מייסד, קולה,<br>וכרגע גם כל הצוות:)",
+        "showcase.kicker": "התפריט (בקרוב)",
+        "showcase.heading": "השקיות עדיין בעיצוב.<br>הקפה לא מחכה.",
+        "badge.mockup": "דוגמת שקית זמנית",
+        "badge.soon": "בקרוב",
+        "badge.progress": "בתהליך עיצוב",
+        "badge.limited": "מהדורה מוגבלת",
+        "card1.tag": "נטורל · דרום אמריקה",
+        "card1.title": "קרמו דה מינאס",
+        "card1.note": "שוקולד מריר · אגוזי לוז · קרמל — עגולה, מתוקה, וקלה לאהבה כבר מהכוס הראשונה.",
+        "card2.tag": "שטוף · גוג'י, אתיופיה",
+        "card2.title": "גוג'י שטוף",
+        "card2.note": "אפרסק · יסמין · דבש — קפה מעניין ועם זאת לא פרוע, עדין ונעים למשקאות חלב, אספרסו ופילטר כאחד.",
+        "card3.tag": "קופרמנטציה · תפוח",
+        "card3.title": "תפוח",
+        "card3.note": "קפה שבמהלך עיבודו, בשלב התסיסה של הקפה, הוסיף המגדל תפוחים שהותססו יחד עם הקפה כדי ליצור טעם מדויק. מהדורה קטנה, מומלצת למחפשי חוויית קפה מיוחדת ולכל מי שפתוח לנסות משהו חדש ומעניין.",
+        "card4.tag": "מנוי",
+        "card4.title": "שקית חודשית",
+        "card4.note": "אתם בוחרים איזו שקית מגיעה כל חודש — הנחה קבועה, גישה מוקדמת למהדורות מוגבלות, וגמישות מלאה לדלג או לבטל מתי שבא לכם.",
+        "card5.tag": "מרצ' ומוצרים",
+        "card5.title": "חולצה",
+        "showcase.note": "עיצוב השקיות עוד בעבודה — אלה דוגמאות זמניות.",
+        "waitlist.kicker": "בקרוב",
+        "waitlist.h2": "למצטרפים אליי לדרך",
+        "waitlist.sub": "תהיו הראשונים לדעת מתי הקולה מתחילה לעבוד, מתי השקיות הראשונות יוצאות, ומתי נפתחת הרשמה מוקדמת במחיר מיוחד. מייל אחד, בדיוק כשצריך — ותו לא.",
+        "waitlist.emailPlaceholder": "Your Email",
+        "waitlist.submit": "הצטרפו לרשימה",
+        "waitlist.fine": "",
+        "waitlist.successStrong": "אתם ברשימה.",
+        "waitlist.successText": "נשלח לכם מייל ברגע שהקלייה הראשונה מוכנה לצאת.",
+        "stat1.label": "מייסד",
+        "stat2.label": "קלייה מוקפדת",
+        "stat3.label": "כוסות שנטעמו",
+        "footer.brandDesc": "בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.",
+        "footer.contactH4": "יצירת קשר",
+        "footer.basedIn": "מיקום — יעודכן בקרוב",
+        "footer.followH4": "עקבו אחרינו",
+        "footer.siteH4": "ניווט",
+        "footer.copyright": "© 2026 I do Coffee Roastery. כל הזכויות שמורות."
+    }
+};
+  /* I18N_DATA_END */
+
+  let currentLang = 'he';
+
+  function setLang(lang){
+    if(!I18N[lang]) return;
+    currentLang = lang;
+    const dict = I18N[lang];
+
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+    document.getElementById('pageTitle').textContent = dict.__title;
+    document.getElementById('pageDesc').setAttribute('content', dict.__desc);
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) el.textContent = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const key = el.getAttribute('data-i18n-html');
+      if (dict[key] !== undefined) el.innerHTML = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (dict[key] !== undefined) el.setAttribute('placeholder', dict[key]);
+    });
+    document.querySelectorAll('.lang-opt').forEach(el => {
+      el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+    });
+  }
+
+  // Hebrew is the default language — populate content on load to match
+  // the lang="he" dir="rtl" already set on <html>, avoiding a flash of
+  // English text before any interaction.
+  setLang(currentLang);
+
+  // Header background on scroll
+  const header = document.getElementById('siteHeader');
+  const onScroll = () => {
+    if (window.scrollY > 40) header.classList.add('scrolled');
+    else header.classList.remove('scrolled');
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Scroll-reveal via IntersectionObserver
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+  revealEls.forEach(el => io.observe(el));
+
+  // Waitlist form (front-end only, "coming soon" style)
+  const form = document.getElementById('waitlistForm');
+  const success = document.getElementById('waitlistSuccess');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById('waitlistEmail');
+    if (!emailInput.value) return;
+    form.style.display = 'none';
+    document.querySelector('.waitlist-fine').style.display = 'none';
+    success.classList.add('show');
+  });
+
+  // Subtle parallax tilt on hero bag, following cursor (mirrors for RTL)
+  const bag = document.querySelector('.bag');
+  const heroVisual = document.querySelector('.hero-visual');
+  if (bag && heroVisual && window.matchMedia('(pointer:fine)').matches) {
+    heroVisual.addEventListener('mousemove', (e) => {
+      const rect = heroVisual.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const base = document.documentElement.dir === 'rtl' ? 4 : -4;
+      const spin = document.documentElement.dir === 'rtl' ? -6 : 6;
+      bag.style.transform = `rotate(${base + x * spin}deg) translate(${x * 10}px, ${y * 10}px)`;
+    });
+    heroVisual.addEventListener('mouseleave', () => {
+      bag.style.transform = '';
+    });
+  }
+
+  /* ============ OWNER CONTENT-EDIT MODE ============
+     How it works: turning edit mode on makes every translated text node
+     contenteditable. "Export updated file" commits whatever is currently
+     on screen back into the I18N object for the active language, then
+     downloads a full new index.html with that object baked in as the
+     new defaults — so the exported file works standalone, no round trip
+     through Claude needed for plain wording tweaks. Nothing is uploaded
+     anywhere; the export happens entirely in the browser. */
+  let editMode = false;
+
+  /* ============ cart + CardCom checkout ============ */
+  const CART_KEY = 'idoCart';
+  const CHECKOUT_ENDPOINT = '/api/create-cardcom-payment'; // deploy the serverless function and set your real URL here
+  const swatches = { cremo:'linear-gradient(155deg,#2c1f17,#1c1712 60%,#120d09)', guji:'linear-gradient(155deg,var(--rust),var(--rust-dark))', tapuach:'linear-gradient(155deg,var(--moss),var(--moss-dark))', shirt:'linear-gradient(155deg,var(--ochre-light),var(--ochre))' };
+  function getCart(){ try{ return JSON.parse(localStorage.getItem(CART_KEY)) || []; }catch(e){ return []; } }
+  function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCart(); }
+  function addToCart(id, name, price, image){
+    const cart = getCart();
+    const existing = cart.find(i => i.id === id);
+    if (existing) existing.qty += 1;
+    else cart.push({ id, name, price, image: image || '', qty: 1 });
+    saveCart(cart);
+    openCart();
+  }
+  function changeQty(id, delta){
+    let cart = getCart();
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+    saveCart(cart);
+  }
+  function renderCart(){
+    const cart = getCart();
+    const itemsEl = document.getElementById('cartItems');
+    const totalEl = document.getElementById('cartTotal');
+    const countEl = document.getElementById('cartCount');
+    const headCountEl = document.getElementById('cartHeadCount');
+    const checkoutBtn = document.getElementById('cartCheckout');
+    if (!itemsEl) return;
+    if (cart.length === 0){
+      itemsEl.innerHTML = `<div class="cart-empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span>העגלה שלך ריקה. אולי כדאי להוסיף שקית קפה?</span>
+      </div>`;
+    } else {
+      itemsEl.innerHTML = cart.map(i => `
+        <div class="cart-item">
+          <div class="swatch" style="background:${i.image ? `url('${i.image}') center/cover` : (swatches[i.id] || 'var(--ink)')}">${i.image ? '' : 'i'}</div>
+          <div class="info">
+            <div class="name">${i.name}</div>
+            <div class="qty-controls">
+              <button type="button" onclick="changeQty('${i.id}',-1)" aria-label="הפחת">−</button>
+              <span>${i.qty}</span>
+              <button type="button" onclick="changeQty('${i.id}',1)" aria-label="הוסף">+</button>
+            </div>
+          </div>
+          <span class="line-total">${i.price * i.qty} ₪</span>
+        </div>`).join('');
+    }
+    const total = cart.reduce((s,i) => s + i.price * i.qty, 0);
+    totalEl.textContent = total + ' ₪';
+    const count = cart.reduce((s,i) => s + i.qty, 0);
+    if (count > 0){
+      countEl.style.display = 'flex'; countEl.textContent = count;
+      headCountEl.style.display = 'inline'; headCountEl.textContent = count + ' פריטים';
+    } else {
+      countEl.style.display = 'none';
+      headCountEl.style.display = 'none';
+    }
+    if (checkoutBtn) checkoutBtn.disabled = cart.length === 0;
+  }
+  function openCart(){ document.getElementById('cartDrawer').classList.add('open'); document.getElementById('cartOverlay').classList.add('open'); }
+  function closeCart(){ document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('open'); }
+  async function goToCheckout(){
+    const cart = getCart();
+    if (cart.length === 0) return;
+    const fullName = document.getElementById('checkoutName').value.trim();
+    const phone = document.getElementById('checkoutPhone').value.trim();
+    if (!fullName || fullName.split(' ').filter(Boolean).length < 2){
+      alert('נא להזין שם מלא (שם פרטי ושם משפחה).');
+      return;
+    }
+    if (!/^0\d{8,9}$/.test(phone)){
+      alert('נא להזין מספר טלפון נייד ישראלי תקין.');
+      return;
+    }
+    try {
+      const res = await fetch(CHECKOUT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: cart, fullName, phone })
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else alert('שגיאה בפתיחת התשלום. יש לחבר את שרת ה-Checkout.');
+    } catch(e) {
+      alert('שרת התשלום עדיין לא מחובר — יש להטמיע את הפונקציה בשרת (ראו api/create-cardcom-payment.js).');
+    }
+  }
+  function wireAddToCartButtons(){
+    document.querySelectorAll('.add-to-cart').forEach(btn => {
+      btn.addEventListener('click', () => addToCart(btn.dataset.id, btn.dataset.name, Number(btn.dataset.price), btn.dataset.image));
+    });
+  }
+  window.wireAddToCartButtons = wireAddToCartButtons;
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCart();
+    wireAddToCartButtons();
+    document.getElementById('cartToggle')?.addEventListener('click', openCart);
+    document.getElementById('cartClose')?.addEventListener('click', closeCart);
+    document.getElementById('cartOverlay')?.addEventListener('click', closeCart);
+    document.getElementById('cartCheckout')?.addEventListener('click', goToCheckout);
+  });
+
+  function switchLang(lang){
+    if (editMode) commitEdits(currentLang);
+    setLang(lang);
+    if (editMode) syncPlaceholderProxy();
+  }
+
+  function syncPlaceholderProxy(){
+    const proxy = document.getElementById('editEmailPlaceholder');
+    const input = document.getElementById('waitlistEmail');
+    if (proxy && input) proxy.textContent = input.getAttribute('placeholder') || '';
+  }
+
+  function commitEdits(lang){
+    if (!I18N[lang]) return;
+    const dict = I18N[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      dict[key] = el.textContent.trim();
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const key = el.getAttribute('data-i18n-html');
+      dict[key] = el.innerHTML.trim();
+    });
+    const proxy = document.getElementById('editEmailPlaceholder');
+    if (proxy) {
+      dict['waitlist.emailPlaceholder'] = proxy.textContent.trim();
+      const input = document.getElementById('waitlistEmail');
+      if (input) input.setAttribute('placeholder', dict['waitlist.emailPlaceholder']);
+    }
+  }
+
+  function toggleEditMode(){
+    editMode = !editMode;
+    document.body.classList.toggle('i18n-editing', editMode);
+    document.getElementById('editToolbar').classList.toggle('show', editMode);
+
+    document.querySelectorAll('[data-i18n], [data-i18n-html]').forEach(el => {
+      el.setAttribute('contenteditable', editMode ? 'true' : 'false');
+    });
+
+    if (editMode) {
+      syncPlaceholderProxy();
+      showEditToast('מצב עריכה פעיל — לחצו על טקסט כדי לערוך, ואז ייצוא כדי לשמור לקובץ.');
+    } else {
+      commitEdits(currentLang);
+    }
+  }
+
+  function showEditToast(msg){
+    const toast = document.getElementById('editToast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showEditToast._t);
+    showEditToast._t = setTimeout(() => toast.classList.remove('show'), 3200);
+  }
+
+  function serializeI18N(){
+    // Pretty-print the I18N object as valid JS (JSON is valid JS object
+    // literal syntax when every key is quoted, which ours already are).
+    return 'const I18N = ' + JSON.stringify(I18N, null, 4) + ';';
+  }
+
+  function exportUpdatedHtml(){
+    if (editMode) commitEdits(currentLang);
+
+    // Work on a detached clone so the live page (and the editor itself)
+    // is untouched — the exported file should look like a normal,
+    // freshly-loaded site with edit mode off.
+    const clone = document.documentElement.cloneNode(true);
+    // Exported file always boots in Hebrew (the site default) regardless
+    // of whichever language was on screen while editing — self-correcting
+    // anyway via setLang(currentLang) at load, but set explicitly too so
+    // there's no flash of the wrong direction before the script runs.
+    clone.setAttribute('lang', 'he');
+    clone.setAttribute('dir', 'rtl');
+    clone.querySelectorAll('[data-i18n], [data-i18n-html]').forEach(el => el.removeAttribute('contenteditable'));
+    clone.classList.remove('i18n-editing');
+    const cloneEntryBtn = clone.querySelector('#editEntryBtn');
+    if (cloneEntryBtn) cloneEntryBtn.parentNode.removeChild(cloneEntryBtn);
+    const cloneToolbar = clone.querySelector('#editToolbar');
+    if (cloneToolbar) cloneToolbar.parentNode.removeChild(cloneToolbar);
+    const cloneToast = clone.querySelector('#editToast');
+    if (cloneToast) cloneToast.parentNode.removeChild(cloneToast);
+
+    let html = '<!DOCTYPE html>\n' + clone.outerHTML;
+
+    const startMarker = '/* I18N_DATA_START */';
+    const endMarker = '/* I18N_DATA_END */';
+    const start = html.indexOf(startMarker);
+    const end = html.indexOf(endMarker);
+    if (start !== -1 && end !== -1) {
+      html = html.slice(0, start + startMarker.length) + '\n  ' + serializeI18N() + '\n  ' + html.slice(end);
+    }
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'index.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showEditToast('קובץ index.html מעודכן ירד למחשב שלך.');
+  }
+</script>
+
+<!-- ============ live products from Firebase (see SETUP-FIREBASE.md) ============ -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getFirestore, collection, query, where, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { firebaseConfig } from './assets/firebase-config.js';
+
+  function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function cardHtml(p, i){
+    const cls = 'card-' + ((i % 5) + 1);
+    const bg = p.image ? `<div style="position:absolute;inset:0;z-index:-1;background:url('${esc(p.image)}') center/cover"></div>` : '';
+    const badge = p.badge ? `<div class="placeholder-badge">${esc(p.badge)}</div>` : '';
+    const note = p.note ? `<p class="note">${esc(p.note)}</p>` : '';
+    const buy = p.comingSoon ? '' : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">הוסף לסל</button></div>`;
+    return `<div class="card ${cls}" style="--i:${i}">${bg}
+      ${badge}
+      <div class="mini-bag"></div>
+      <span class="tag-row">${esc(p.tag || '')}</span>
+      <h3>${esc(p.name)}</h3>
+      ${note}
+      ${buy}
+    </div>`;
+  }
+
+  async function loadProducts(){
+    const grid = document.getElementById('bentoGrid');
+    if (!grid) return;
+    try {
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const q = query(collection(db, 'products'), where('active', '==', true), orderBy('order', 'asc'));
+      const snap = await getDocs(q);
+      const products = [];
+      snap.forEach(doc => {
+        const d = doc.data();
+        if ((d.stock ?? 0) > 0 || d.comingSoon) products.push({ id: doc.id, ...d });
+      });
+      if (products.length === 0){
+        grid.innerHTML = '<p style="grid-column:1/-1;color:var(--ink-soft);padding:40px 0;text-align:center">אין כרגע מוצרים זמינים.</p>';
+        return;
+      }
+      grid.innerHTML = products.map(cardHtml).join('');
+      if (window.wireAddToCartButtons) window.wireAddToCartButtons();
+    } catch (e) {
+      console.error('Failed to load products from Firebase', e);
+      grid.innerHTML = '<p style="grid-column:1/-1;color:var(--ink-soft);padding:40px 0;text-align:center">שגיאה בטעינת המוצרים — יש להגדיר את Firebase (ראו SETUP-FIREBASE.md).</p>';
+    }
+  }
+  loadProducts();
+</script>
+
+</body></html>

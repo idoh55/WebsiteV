@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>ניהול חנות — I do</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{ --ink:#1c1712; --cream:#faf6ef; --line:#e4dbcb; --rust:#c94f43; --moss:#5c6b4f; }
+  *{box-sizing:border-box;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--cream);color:var(--ink);margin:0;padding:0;}
+  header{padding:22px 32px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+  header h1{font-size:20px;margin:0;}
+  header button{background:none;border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;}
+  main{max-width:1000px;margin:0 auto;padding:32px;}
+  .login-box{max-width:340px;margin:80px auto;display:flex;flex-direction:column;gap:12px;}
+  .login-box input{padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;}
+  .login-box button{padding:12px;border:none;border-radius:8px;background:var(--ink);color:var(--cream);font-weight:600;cursor:pointer;}
+  .tabs{display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--line);}
+  .tab{padding:10px 18px;cursor:pointer;font-weight:600;font-size:14px;color:#8a7f6f;border-bottom:2px solid transparent;}
+  .tab.active{color:var(--ink);border-color:var(--rust);}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{text-align:right;padding:10px 8px;border-bottom:1px solid var(--line);}
+  th{color:#8a7f6f;font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;}
+  .stock-low{color:var(--rust);font-weight:700;}
+  .status-pill{padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600;display:inline-block;}
+  .status-paid{background:#e4ecdf;color:var(--moss);}
+  .status-pending, .status-pending_charge{background:#f5edd8;color:#9c7a1f;}
+  .status-failed{background:#f6dede;color:var(--rust);}
+  button.small{padding:5px 10px;font-size:12.5px;border-radius:6px;border:1px solid var(--line);background:#fff;cursor:pointer;}
+  button.small.danger{color:var(--rust);border-color:#eecccb;}
+  .product-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0;padding:20px;border:1px solid var(--line);border-radius:12px;background:#fff;}
+  .product-form label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:#8a7f6f;}
+  .product-form input, .product-form textarea{padding:9px 11px;border:1.5px solid var(--line);border-radius:7px;font-size:14px;font-family:inherit;}
+  .product-form .full{grid-column:1/-1;}
+  .product-form .actions{grid-column:1/-1;display:flex;gap:10px;}
+  .product-form .actions button{padding:10px 18px;border-radius:8px;border:none;background:var(--ink);color:var(--cream);font-weight:600;cursor:pointer;}
+  .product-form .actions button.cancel{background:none;color:var(--ink);border:1px solid var(--line);}
+  .add-btn{margin-bottom:16px;padding:10px 16px;border-radius:8px;border:none;background:var(--ink);color:var(--cream);font-weight:600;cursor:pointer;}
+  #status{font-size:13px;color:var(--rust);margin-top:8px;}
+  .checkbox-row{display:flex;align-items:center;gap:8px;font-size:13.5px;flex-direction:row !important;}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-box">
+  <h2 style="text-align:center;margin-bottom:8px;">כניסת מנהל</h2>
+  <input type="email" id="loginEmail" placeholder="אימייל">
+  <input type="password" id="loginPassword" placeholder="סיסמה">
+  <button id="loginBtn">כניסה</button>
+  <div id="status"></div>
+</div>
+
+<div id="app" style="display:none;">
+  <header>
+    <h1>ניהול חנות — I do</h1>
+    <button id="logoutBtn">התנתקות</button>
+  </header>
+  <main>
+    <div class="tabs">
+      <div class="tab active" data-tab="products">מוצרים</div>
+      <div class="tab" data-tab="orders">הזמנות</div>
+    </div>
+
+    <section id="productsTab">
+      <button class="add-btn" id="addProductBtn">+ מוצר חדש</button>
+      <div id="productForm"></div>
+      <table>
+        <thead><tr><th>שם</th><th>מחיר</th><th>מלאי</th><th>פעיל</th><th>בקרוב</th><th></th></tr></thead>
+        <tbody id="productsBody"></tbody>
+      </table>
+    </section>
+
+    <section id="ordersTab" style="display:none;">
+      <table>
+        <thead><tr><th>תאריך</th><th>לקוח</th><th>טלפון</th><th>סכום</th><th>סטטוס</th><th>עדכון ידני</th></tr></thead>
+        <tbody id="ordersBody"></tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+  import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { firebaseConfig } from './assets/firebase-config.js';
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const loginScreen = document.getElementById('loginScreen');
+  const appEl = document.getElementById('app');
+  const statusEl = document.getElementById('status');
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    statusEl.textContent = '';
+    try {
+      await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
+    } catch (e) {
+      statusEl.textContent = 'שגיאת התחברות: ' + e.message;
+    }
+  });
+  document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    loginScreen.style.display = user ? 'none' : 'flex';
+    appEl.style.display = user ? 'block' : 'none';
+    if (user) { loadProducts(); loadOrders(); }
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('productsTab').style.display = tab.dataset.tab === 'products' ? 'block' : 'none';
+      document.getElementById('ordersTab').style.display = tab.dataset.tab === 'orders' ? 'block' : 'none';
+    });
+  });
+
+  // ---------- products ----------
+  let editingId = null;
+  const formEl = document.getElementById('productForm');
+
+  function renderForm(p = {}) {
+    formEl.innerHTML = `
+      <div class="product-form">
+        <label>שם <input id="f_name" value="${p.name || ''}"></label>
+        <label>מחיר (₪) <input id="f_price" type="number" value="${p.price ?? ''}"></label>
+        <label>תגית (למשל: נטורל · דרום אמריקה) <input id="f_tag" value="${p.tag || ''}"></label>
+        <label>מלאי <input id="f_stock" type="number" value="${p.stock ?? 0}"></label>
+        <label>סדר תצוגה <input id="f_order" type="number" value="${p.order ?? 0}"></label>
+        <label>תמונה (URL) <input id="f_image" value="${p.image || ''}"></label>
+        <label class="full">תיאור <textarea id="f_note" rows="2">${p.note || ''}</textarea></label>
+        <label class="full">תג מיוחד (אופציונלי, למשל "מהדורה מוגבלת") <input id="f_badge" value="${p.badge || ''}"></label>
+        <div class="full checkbox-row"><input type="checkbox" id="f_active" ${p.active !== false ? 'checked' : ''}> <span>פעיל באתר</span></div>
+        <div class="full checkbox-row"><input type="checkbox" id="f_comingSoon" ${p.comingSoon ? 'checked' : ''}> <span>בקרוב (ללא כפתור רכישה)</span></div>
+        <div class="actions">
+          <button id="saveProductBtn">שמירה</button>
+          <button type="button" class="cancel" id="cancelProductBtn">ביטול</button>
+        </div>
+      </div>`;
+    document.getElementById('saveProductBtn').addEventListener('click', saveProduct);
+    document.getElementById('cancelProductBtn').addEventListener('click', () => { formEl.innerHTML = ''; editingId = null; });
+  }
+
+  document.getElementById('addProductBtn').addEventListener('click', () => { editingId = null; renderForm(); });
+
+  async function saveProduct() {
+    const data = {
+      name: document.getElementById('f_name').value.trim(),
+      price: Number(document.getElementById('f_price').value) || 0,
+      tag: document.getElementById('f_tag').value.trim(),
+      stock: Number(document.getElementById('f_stock').value) || 0,
+      order: Number(document.getElementById('f_order').value) || 0,
+      image: document.getElementById('f_image').value.trim(),
+      note: document.getElementById('f_note').value.trim(),
+      badge: document.getElementById('f_badge').value.trim(),
+      active: document.getElementById('f_active').checked,
+      comingSoon: document.getElementById('f_comingSoon').checked,
+    };
+    if (!data.name) { alert('נא להזין שם מוצר'); return; }
+    if (editingId) await updateDoc(doc(db, 'products', editingId), data);
+    else await addDoc(collection(db, 'products'), data);
+    formEl.innerHTML = ''; editingId = null;
+    loadProducts();
+  }
+
+  async function loadProducts() {
+    const body = document.getElementById('productsBody');
+    const snap = await getDocs(query(collection(db, 'products'), orderBy('order', 'asc')));
+    body.innerHTML = '';
+    snap.forEach(d => {
+      const p = d.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.name}</td>
+        <td>${p.price} ₪</td>
+        <td class="${(p.stock ?? 0) <= 3 ? 'stock-low' : ''}">${p.stock ?? 0}</td>
+        <td>${p.active !== false ? 'כן' : 'לא'}</td>
+        <td>${p.comingSoon ? 'כן' : '—'}</td>
+        <td style="display:flex;gap:6px;">
+          <button class="small" data-edit="${d.id}">עריכה</button>
+          <button class="small danger" data-del="${d.id}">מחיקה</button>
+        </td>`;
+      body.appendChild(tr);
+    });
+    body.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', async () => {
+      editingId = btn.dataset.edit;
+      const snap2 = await getDocs(query(collection(db, 'products'), orderBy('order', 'asc')));
+      const found = snap2.docs.find(d => d.id === editingId);
+      renderForm(found.data());
+    }));
+    body.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('למחוק מוצר זה?')) { await deleteDoc(doc(db, 'products', btn.dataset.del)); loadProducts(); }
+    }));
+  }
+
+  // ---------- orders (read + manual status override) ----------
+  async function loadOrders() {
+    const body = document.getElementById('ordersBody');
+    const snap = await getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc')));
+    body.innerHTML = '';
+    snap.forEach(d => {
+      const o = d.data();
+      const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('he-IL') : '—';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${date}</td>
+        <td>${o.fullName || '—'}</td>
+        <td>${o.phone || '—'}</td>
+        <td>${o.amount} ₪</td>
+        <td><span class="status-pill status-${o.status}">${o.status}</span></td>
+        <td>
+          <select data-order="${d.id}">
+            <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>pending</option>
+            <option value="paid" ${o.status === 'paid' ? 'selected' : ''}>paid</option>
+            <option value="failed" ${o.status === 'failed' ? 'selected' : ''}>failed</option>
+            <option value="refunded" ${o.status === 'refunded' ? 'selected' : ''}>refunded</option>
+          </select>
+        </td>`;
+      body.appendChild(tr);
+    });
+    body.querySelectorAll('[data-order]').forEach(sel => sel.addEventListener('change', async () => {
+      await updateDoc(doc(db, 'orders', sel.dataset.order), { status: sel.value });
+      loadOrders();
+    }));
+  }
+</script>
+</body>
+</html>
