@@ -134,7 +134,8 @@
           <input id="f_image" value="${p.image || ''}">
           <img id="imagePreview" src="${p.image || ''}" style="max-width:160px;max-height:100px;border-radius:8px;margin-top:8px;${p.image ? '' : 'display:none;'}">
         </label>
-        <label class="full">תיאור <textarea id="f_note" rows="2">${p.note || ''}</textarea></label>
+        <label class="full">תיאור קצר (מוצג על הריבוע בעמוד הראשי) <textarea id="f_note" rows="2">${p.note || ''}</textarea></label>
+        <label class="full">פרטים נוספים (מוצג רק כשלוחצים על הריבוע להרחבה — מקור, קלייה, טעימות וכו') <textarea id="f_details" rows="4">${p.details || ''}</textarea></label>
         <label class="full">תג מיוחד (אופציונלי, למשל "מהדורה מוגבלת") <input id="f_badge" value="${p.badge || ''}"></label>
         <div class="full checkbox-row"><input type="checkbox" id="f_active" ${p.active !== false ? 'checked' : ''}> <span>פעיל באתר</span></div>
         <div class="full checkbox-row"><input type="checkbox" id="f_comingSoon" ${p.comingSoon ? 'checked' : ''}> <span>בקרוב (ללא כפתור רכישה)</span></div>
@@ -178,6 +179,7 @@
       order: Number(document.getElementById('f_order').value) || 0,
       image: document.getElementById('f_image').value.trim(),
       note: document.getElementById('f_note').value.trim(),
+      details: document.getElementById('f_details').value.trim(),
       badge: document.getElementById('f_badge').value.trim(),
       active: document.getElementById('f_active').checked,
       comingSoon: document.getElementById('f_comingSoon').checked,

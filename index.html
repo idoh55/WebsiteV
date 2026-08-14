@@ -684,6 +684,28 @@
   .cart-checkout:disabled{opacity:0.6; cursor:default; transform:none;}
   html[dir="rtl"] .cart-checkout svg{transform:scaleX(-1);}
 
+  /* ---------- expanding product detail ---------- */
+  .card{cursor:pointer;}
+  .product-overlay{position:fixed;inset:0;background:rgba(28,23,18,0.55);backdrop-filter:blur(2px);z-index:950;opacity:0;pointer-events:none;transition:opacity .35s var(--ease);}
+  .product-overlay.open{opacity:1;pointer-events:auto;}
+  .product-expanded{position:fixed;z-index:951;overflow:hidden;border-radius:var(--radius);background:var(--espresso);color:var(--cream);box-shadow:0 40px 80px -20px rgba(28,23,18,0.5);opacity:0;pointer-events:none;transition:top .45s var(--ease),left .45s var(--ease),width .45s var(--ease),height .45s var(--ease),border-radius .45s var(--ease),opacity .2s var(--ease);}
+  .product-expanded.open{opacity:1;pointer-events:auto;}
+  .product-expanded.fullscreen{border-radius:0;}
+  .product-expanded-close{position:absolute;top:18px;inset-inline-end:18px;z-index:2;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);color:var(--cream);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background .2s var(--ease);}
+  .product-expanded-close:hover{background:rgba(255,255,255,0.26);}
+  .product-expanded-inner{height:100%;overflow-y:auto;display:flex;flex-direction:column;opacity:0;transition:opacity .25s var(--ease);}
+  .product-expanded.settled .product-expanded-inner{opacity:1;}
+  .product-expanded-media{width:100%;aspect-ratio:16/10;background:var(--espresso) center/cover;flex-shrink:0;}
+  .product-expanded-body{padding:32px;max-width:640px;margin:0 auto;}
+  .product-expanded-body .kicker-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
+  .product-expanded-body h3{font-family:var(--font-serif);font-size:clamp(26px,4vw,34px);font-weight:500;margin-bottom:14px;}
+  .product-expanded-body .expanded-note{font-size:15px;line-height:1.6;opacity:0.9;margin-bottom:16px;}
+  .product-expanded-body .expanded-details{font-size:14.5px;line-height:1.75;color:rgba(246,241,231,0.82);white-space:pre-wrap;margin-bottom:24px;}
+  .product-expanded-body .buy-row{margin-top:0;}
+  @media (max-width: 620px){
+    .product-expanded-body{padding:26px 22px;}
+  }
+
   .card h3{
     font-family:var(--font-serif);
     font-size:26px;
@@ -1185,6 +1207,12 @@
   </div>
 </aside>
 
+<div class="product-overlay" id="productOverlay"></div>
+<div class="product-expanded" id="productExpanded" role="dialog" aria-modal="true">
+  <button type="button" class="product-expanded-close" id="productExpandedClose" aria-label="סגור">✕</button>
+  <div class="product-expanded-inner" id="productExpandedInner"></div>
+</div>
+
 <!-- ================= FOOTER ================= -->
 <footer>
   <div class="container">
@@ -1664,12 +1692,14 @@
 
   function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+  let productsById = {};
+
   function cardHtml(p, i){
     const bg = p.image ? `<div style="position:absolute;inset:0;z-index:-1;background:url('${esc(p.image)}') center/cover"></div>` : '';
     const badge = p.badge ? `<div class="placeholder-badge">${esc(p.badge)}</div>` : '';
     const note = p.note ? `<p class="note">${esc(p.note)}</p>` : '';
     const buy = p.comingSoon ? '' : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">הוסף לסל</button></div>`;
-    return `<div class="card" style="--i:${i}">${bg}
+    return `<div class="card" data-id="${esc(p.id)}" style="--i:${i}">${bg}
       ${badge}
       <div class="mini-bag ${p.comingSoon ? 'status-soon' : 'status-live'}" title="${p.comingSoon ? 'בקרוב' : 'זמין'}"></div>
       <span class="tag-row">${esc(p.tag || '')}</span>
@@ -1678,6 +1708,112 @@
       ${buy}
     </div>`;
   }
+
+  // ---------- expanding product detail ----------
+  function expandedHtml(p){
+    const media = p.image ? `<div class="product-expanded-media" style="background-image:url('${esc(p.image)}')"></div>` : '';
+    const badge = p.badge ? `<div class="placeholder-badge">${esc(p.badge)}</div>` : '';
+    const note = p.note ? `<p class="expanded-note">${esc(p.note)}</p>` : '';
+    const details = p.details ? `<p class="expanded-details">${esc(p.details)}</p>` : '';
+    const buy = p.comingSoon
+      ? `<p class="expanded-note" style="opacity:0.65">בקרוב — עדיין לא זמין לרכישה.</p>`
+      : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">הוסף לסל</button></div>`;
+    return `${media}
+      <div class="product-expanded-body">
+        ${badge}
+        <span class="tag-row">${esc(p.tag || '')}</span>
+        <h3>${esc(p.name)}</h3>
+        ${note}
+        ${details}
+        ${buy}
+      </div>`;
+  }
+
+  let openSourceCard = null;
+
+  function computeFinalRect(){
+    if (window.innerWidth <= 620) return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight, fullscreen: true };
+    const width = Math.min(680, window.innerWidth * 0.9);
+    const height = Math.min(640, window.innerHeight * 0.86);
+    return { top: (window.innerHeight - height) / 2, left: (window.innerWidth - width) / 2, width, height, fullscreen: false };
+  }
+
+  function openProductDetail(id, sourceEl){
+    const p = productsById[id];
+    const panel = document.getElementById('productExpanded');
+    const overlay = document.getElementById('productOverlay');
+    const inner = document.getElementById('productExpandedInner');
+    if (!p || !panel || !overlay || !inner) return;
+
+    inner.innerHTML = expandedHtml(p);
+    inner.querySelectorAll('.add-to-cart').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.addToCart?.(btn.dataset.id, btn.dataset.name, Number(btn.dataset.price), btn.dataset.image);
+        closeProductDetail();
+      });
+    });
+
+    openSourceCard = sourceEl || null;
+    const startRect = sourceEl ? sourceEl.getBoundingClientRect() : computeFinalRect();
+
+    panel.classList.remove('settled', 'fullscreen');
+    panel.style.transition = 'none';
+    panel.style.top = startRect.top + 'px';
+    panel.style.left = startRect.left + 'px';
+    panel.style.width = startRect.width + 'px';
+    panel.style.height = startRect.height + 'px';
+    panel.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    panel.getBoundingClientRect(); // force reflow so the start position is registered
+
+    requestAnimationFrame(() => {
+      panel.style.transition = '';
+      const final = computeFinalRect();
+      panel.style.top = final.top + 'px';
+      panel.style.left = final.left + 'px';
+      panel.style.width = final.width + 'px';
+      panel.style.height = final.height + 'px';
+      if (final.fullscreen) panel.classList.add('fullscreen');
+    });
+
+    const onEnd = (e) => {
+      if (e.propertyName !== 'width') return;
+      panel.classList.add('settled');
+      panel.removeEventListener('transitionend', onEnd);
+    };
+    panel.addEventListener('transitionend', onEnd);
+  }
+
+  function closeProductDetail(){
+    const panel = document.getElementById('productExpanded');
+    const overlay = document.getElementById('productOverlay');
+    if (!panel || !panel.classList.contains('open')) return;
+    panel.classList.remove('settled');
+    const rect = openSourceCard ? openSourceCard.getBoundingClientRect() : computeFinalRect();
+    panel.style.top = rect.top + 'px';
+    panel.style.left = rect.left + 'px';
+    panel.style.width = rect.width + 'px';
+    panel.style.height = rect.height + 'px';
+    panel.classList.remove('fullscreen');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { panel.classList.remove('open'); }, 460);
+  }
+
+  function wireCardExpand(){
+    document.querySelectorAll('#bentoGrid .card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.add-to-cart')) return;
+        openProductDetail(card.dataset.id, card);
+      });
+    });
+  }
+
+  document.getElementById('productExpandedClose')?.addEventListener('click', closeProductDetail);
+  document.getElementById('productOverlay')?.addEventListener('click', closeProductDetail);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProductDetail(); });
 
   async function loadProducts(){
     const grid = document.getElementById('bentoGrid');
@@ -1696,8 +1832,11 @@
         grid.innerHTML = '<p style="grid-column:1/-1;color:var(--ink-soft);padding:40px 0;text-align:center">אין כרגע מוצרים זמינים.</p>';
         return;
       }
+      productsById = {};
+      products.forEach(p => { productsById[p.id] = p; });
       grid.innerHTML = products.map(cardHtml).join('');
       if (window.wireAddToCartButtons) window.wireAddToCartButtons();
+      wireCardExpand();
     } catch (e) {
       console.error('Failed to load products from Firebase', e);
       grid.innerHTML = '<p style="grid-column:1/-1;color:var(--ink-soft);padding:40px 0;text-align:center">שגיאה בטעינת המוצרים — יש להגדיר את Firebase (ראו SETUP-FIREBASE.md).</p>';
