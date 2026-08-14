@@ -688,14 +688,17 @@
   .card{cursor:pointer;}
   .product-overlay{position:fixed;inset:0;background:rgba(28,23,18,0.55);backdrop-filter:blur(2px);z-index:950;opacity:0;pointer-events:none;transition:opacity .35s var(--ease);}
   .product-overlay.open{opacity:1;pointer-events:auto;}
-  .product-expanded{position:fixed;z-index:951;overflow:hidden;border-radius:var(--radius);background:var(--espresso);color:var(--cream);box-shadow:0 40px 80px -20px rgba(28,23,18,0.5);opacity:0;pointer-events:none;transition:top .45s var(--ease),left .45s var(--ease),width .45s var(--ease),height .45s var(--ease),border-radius .45s var(--ease),opacity .2s var(--ease);}
+  .product-expanded{position:fixed;z-index:951;overflow:hidden;border-radius:var(--radius);background:var(--espresso);color:var(--cream);box-shadow:0 40px 80px -20px rgba(28,23,18,0.5);opacity:0;pointer-events:none;display:flex;flex-direction:column;transition:top .45s var(--ease),left .45s var(--ease),width .45s var(--ease),height .45s var(--ease),border-radius .45s var(--ease),opacity .2s var(--ease);}
   .product-expanded.open{opacity:1;pointer-events:auto;}
   .product-expanded.fullscreen{border-radius:0;}
   .product-expanded-close{position:absolute;top:18px;inset-inline-end:18px;z-index:2;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);color:var(--cream);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background .2s var(--ease);}
   .product-expanded-close:hover{background:rgba(255,255,255,0.26);}
-  .product-expanded-inner{height:100%;overflow-y:auto;display:flex;flex-direction:column;opacity:0;transition:opacity .25s var(--ease);}
+  /* Stays visible through the whole open/close transition — matching the
+     card's own always-visible photo — only the text below fades in/out. */
+  .product-expanded-media{width:100%;aspect-ratio:16/10;background:var(--espresso) center/cover;flex-shrink:0;display:none;}
+  .product-expanded-media.has-image{display:block;}
+  .product-expanded-inner{flex:1;min-height:0;overflow-y:auto;opacity:0;transition:opacity .25s var(--ease);}
   .product-expanded.settled .product-expanded-inner{opacity:1;}
-  .product-expanded-media{width:100%;aspect-ratio:16/10;background:var(--espresso) center/cover;flex-shrink:0;}
   .product-expanded-body{padding:32px;max-width:640px;margin:0 auto;}
   .product-expanded-body .kicker-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
   .product-expanded-body h3{font-family:var(--font-serif);font-size:clamp(26px,4vw,34px);font-weight:500;margin-bottom:14px;}
@@ -1210,6 +1213,7 @@
 <div class="product-overlay" id="productOverlay"></div>
 <div class="product-expanded" id="productExpanded" role="dialog" aria-modal="true">
   <button type="button" class="product-expanded-close" id="productExpandedClose" aria-label="סגור">✕</button>
+  <div class="product-expanded-media" id="productExpandedMedia"></div>
   <div class="product-expanded-inner" id="productExpandedInner"></div>
 </div>
 
@@ -1710,16 +1714,14 @@
   }
 
   // ---------- expanding product detail ----------
-  function expandedHtml(p){
-    const media = p.image ? `<div class="product-expanded-media" style="background-image:url('${esc(p.image)}')"></div>` : '';
+  function expandedBodyHtml(p){
     const badge = p.badge ? `<div class="placeholder-badge">${esc(p.badge)}</div>` : '';
     const note = p.note ? `<p class="expanded-note">${esc(p.note)}</p>` : '';
     const details = p.details ? `<p class="expanded-details">${esc(p.details)}</p>` : '';
     const buy = p.comingSoon
       ? `<p class="expanded-note" style="opacity:0.65">בקרוב — עדיין לא זמין לרכישה.</p>`
       : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">הוסף לסל</button></div>`;
-    return `${media}
-      <div class="product-expanded-body">
+    return `<div class="product-expanded-body">
         ${badge}
         <span class="tag-row">${esc(p.tag || '')}</span>
         <h3>${esc(p.name)}</h3>
@@ -1743,9 +1745,13 @@
     const panel = document.getElementById('productExpanded');
     const overlay = document.getElementById('productOverlay');
     const inner = document.getElementById('productExpandedInner');
-    if (!p || !panel || !overlay || !inner) return;
+    const media = document.getElementById('productExpandedMedia');
+    if (!p || !panel || !overlay || !inner || !media) return;
 
-    inner.innerHTML = expandedHtml(p);
+    media.classList.toggle('has-image', !!p.image);
+    media.style.backgroundImage = p.image ? `url('${p.image.replace(/'/g, "%27")}')` : '';
+
+    inner.innerHTML = expandedBodyHtml(p);
     inner.querySelectorAll('.add-to-cart').forEach(btn => {
       btn.addEventListener('click', () => {
         window.addToCart?.(btn.dataset.id, btn.dataset.name, Number(btn.dataset.price), btn.dataset.image);
