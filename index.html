@@ -1407,6 +1407,9 @@
     document.querySelectorAll('.lang-opt').forEach(el => {
       el.classList.toggle('active', el.getAttribute('data-lang') === lang);
     });
+
+    window.currentLang = lang;
+    window.rerenderProducts?.();
   }
 
   // Hebrew is the default language — populate content on load to match
@@ -1698,14 +1701,37 @@
 
   let productsById = {};
 
+  // Product text (name/tag/note/details/badge) is user-entered in Firestore,
+  // separate from the static-copy i18n dictionary above — this picks the
+  // English variant when set and the site is in English, else falls back
+  // to the Hebrew fields so untranslated products still show something.
+  function localize(p){
+    const en = window.currentLang === 'en';
+    return {
+      ...p,
+      name: (en && p.name_en) || p.name,
+      tag: (en && p.tag_en) || p.tag,
+      note: (en && p.note_en) || p.note,
+      details: (en && p.details_en) || p.details,
+      badge: (en && p.badge_en) || p.badge,
+    };
+  }
+
+  const UI_STRINGS = {
+    he: { addToCart: 'הוסף לסל', comingSoonTitle: 'בקרוב', availableTitle: 'זמין', comingSoonNote: 'בקרוב — עדיין לא זמין לרכישה.' },
+    en: { addToCart: 'Add to cart', comingSoonTitle: 'Coming soon', availableTitle: 'Available', comingSoonNote: 'Coming soon — not available for purchase yet.' },
+  };
+  function ui(){ return UI_STRINGS[window.currentLang === 'en' ? 'en' : 'he']; }
+
   function cardHtml(p, i){
+    p = localize(p);
     const bg = p.image ? `<div style="position:absolute;inset:0;z-index:-1;background:url('${esc(p.image)}') center/cover"></div>` : '';
     const badge = p.badge ? `<div class="placeholder-badge">${esc(p.badge)}</div>` : '';
     const note = p.note ? `<p class="note">${esc(p.note)}</p>` : '';
-    const buy = p.comingSoon ? '' : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">הוסף לסל</button></div>`;
+    const buy = p.comingSoon ? '' : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">${ui().addToCart}</button></div>`;
     return `<div class="card" data-id="${esc(p.id)}" style="--i:${i}">${bg}
       ${badge}
-      <div class="mini-bag ${p.comingSoon ? 'status-soon' : 'status-live'}" title="${p.comingSoon ? 'בקרוב' : 'זמין'}"></div>
+      <div class="mini-bag ${p.comingSoon ? 'status-soon' : 'status-live'}" title="${p.comingSoon ? ui().comingSoonTitle : ui().availableTitle}"></div>
       <span class="tag-row">${esc(p.tag || '')}</span>
       <h3>${esc(p.name)}</h3>
       ${note}
@@ -1715,12 +1741,13 @@
 
   // ---------- expanding product detail ----------
   function expandedBodyHtml(p){
+    p = localize(p);
     const badge = p.badge ? `<div class="placeholder-badge">${esc(p.badge)}</div>` : '';
     const note = p.note ? `<p class="expanded-note">${esc(p.note)}</p>` : '';
     const details = p.details ? `<p class="expanded-details">${esc(p.details)}</p>` : '';
     const buy = p.comingSoon
-      ? `<p class="expanded-note" style="opacity:0.65">בקרוב — עדיין לא זמין לרכישה.</p>`
-      : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">הוסף לסל</button></div>`;
+      ? `<p class="expanded-note" style="opacity:0.65">${ui().comingSoonNote}</p>`
+      : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">${ui().addToCart}</button></div>`;
     return `<div class="product-expanded-body">
         ${badge}
         <span class="tag-row">${esc(p.tag || '')}</span>
@@ -1732,6 +1759,7 @@
   }
 
   let openSourceCard = null;
+  let openProductId = null;
 
   function computeFinalRect(){
     if (window.innerWidth <= 620) return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight, fullscreen: true };
@@ -1760,6 +1788,7 @@
     });
 
     openSourceCard = sourceEl || null;
+    openProductId = id;
     const startRect = sourceEl ? sourceEl.getBoundingClientRect() : computeFinalRect();
 
     panel.classList.remove('settled', 'fullscreen');
@@ -1806,6 +1835,24 @@
     overlay.classList.remove('open');
     document.body.style.overflow = '';
     setTimeout(() => { panel.classList.remove('open'); }, 460);
+    openProductId = null;
+  }
+
+  // Re-fills the currently-open detail panel's text in place (no reposition
+  // animation) — used when the language toggle changes while it's open.
+  function refreshOpenProductDetail(){
+    const panel = document.getElementById('productExpanded');
+    if (!panel || !panel.classList.contains('open') || !openProductId) return;
+    const p = productsById[openProductId];
+    const inner = document.getElementById('productExpandedInner');
+    if (!p || !inner) return;
+    inner.innerHTML = expandedBodyHtml(p);
+    inner.querySelectorAll('.add-to-cart').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.addToCart?.(btn.dataset.id, btn.dataset.name, Number(btn.dataset.price), btn.dataset.image);
+        closeProductDetail();
+      });
+    });
   }
 
   function wireCardExpand(){
@@ -1821,6 +1868,23 @@
   document.getElementById('productOverlay')?.addEventListener('click', closeProductDetail);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProductDetail(); });
 
+  const EMPTY_MSG = { he: 'אין כרגע מוצרים זמינים.', en: 'No products available right now.' };
+
+  function renderGrid(){
+    const grid = document.getElementById('bentoGrid');
+    if (!grid) return;
+    const products = Object.values(productsById);
+    if (products.length === 0){
+      grid.innerHTML = `<p style="grid-column:1/-1;color:var(--ink-soft);padding:40px 0;text-align:center">${window.currentLang === 'en' ? EMPTY_MSG.en : EMPTY_MSG.he}</p>`;
+      return;
+    }
+    grid.innerHTML = products.map(cardHtml).join('');
+    if (window.wireAddToCartButtons) window.wireAddToCartButtons();
+    wireCardExpand();
+  }
+
+  window.rerenderProducts = () => { renderGrid(); refreshOpenProductDetail(); };
+
   async function loadProducts(){
     const grid = document.getElementById('bentoGrid');
     if (!grid) return;
@@ -1829,20 +1893,12 @@
       const db = getFirestore(app);
       const q = query(collection(db, 'products'), where('active', '==', true), orderBy('order', 'asc'));
       const snap = await getDocs(q);
-      const products = [];
+      productsById = {};
       snap.forEach(doc => {
         const d = doc.data();
-        if ((d.stock ?? 0) > 0 || d.comingSoon) products.push({ id: doc.id, ...d });
+        if ((d.stock ?? 0) > 0 || d.comingSoon) productsById[doc.id] = { id: doc.id, ...d };
       });
-      if (products.length === 0){
-        grid.innerHTML = '<p style="grid-column:1/-1;color:var(--ink-soft);padding:40px 0;text-align:center">אין כרגע מוצרים זמינים.</p>';
-        return;
-      }
-      productsById = {};
-      products.forEach(p => { productsById[p.id] = p; });
-      grid.innerHTML = products.map(cardHtml).join('');
-      if (window.wireAddToCartButtons) window.wireAddToCartButtons();
-      wireCardExpand();
+      renderGrid();
     } catch (e) {
       console.error('Failed to load products from Firebase', e);
       grid.innerHTML = '<p style="grid-column:1/-1;color:var(--ink-soft);padding:40px 0;text-align:center">שגיאה בטעינת המוצרים — יש להגדיר את Firebase (ראו SETUP-FIREBASE.md).</p>';

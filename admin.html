@@ -137,6 +137,12 @@
         <label class="full">תיאור קצר (מוצג על הריבוע בעמוד הראשי) <textarea id="f_note" rows="2">${p.note || ''}</textarea></label>
         <label class="full">פרטים נוספים (מוצג רק כשלוחצים על הריבוע להרחבה — מקור, קלייה, טעימות וכו') <textarea id="f_details" rows="4">${p.details || ''}</textarea></label>
         <label class="full">תג מיוחד (אופציונלי, למשל "מהדורה מוגבלת") <input id="f_badge" value="${p.badge || ''}"></label>
+        <div class="full" style="border-top:1px solid var(--line);margin-top:8px;padding-top:16px;font-size:12.5px;font-weight:600;color:#8a7f6f;">גרסה באנגלית (אופציונלי — מוצג כשהאתר במצב EN; ריק = יוצג הטקסט העברי)</div>
+        <label>Name (EN) <input id="f_name_en" value="${p.name_en || ''}"></label>
+        <label>Tag (EN) <input id="f_tag_en" value="${p.tag_en || ''}"></label>
+        <label class="full">Short description (EN) <textarea id="f_note_en" rows="2">${p.note_en || ''}</textarea></label>
+        <label class="full">Extended details (EN) <textarea id="f_details_en" rows="4">${p.details_en || ''}</textarea></label>
+        <label class="full">Badge (EN) <input id="f_badge_en" value="${p.badge_en || ''}"></label>
         <div class="full checkbox-row"><input type="checkbox" id="f_active" ${p.active !== false ? 'checked' : ''}> <span>פעיל באתר</span></div>
         <div class="full checkbox-row"><input type="checkbox" id="f_comingSoon" ${p.comingSoon ? 'checked' : ''}> <span>בקרוב (ללא כפתור רכישה)</span></div>
         <div class="actions">
@@ -181,6 +187,11 @@
       note: document.getElementById('f_note').value.trim(),
       details: document.getElementById('f_details').value.trim(),
       badge: document.getElementById('f_badge').value.trim(),
+      name_en: document.getElementById('f_name_en').value.trim(),
+      tag_en: document.getElementById('f_tag_en').value.trim(),
+      note_en: document.getElementById('f_note_en').value.trim(),
+      details_en: document.getElementById('f_details_en').value.trim(),
+      badge_en: document.getElementById('f_badge_en').value.trim(),
       active: document.getElementById('f_active').checked,
       comingSoon: document.getElementById('f_comingSoon').checked,
     };
