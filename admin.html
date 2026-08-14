@@ -171,6 +171,13 @@
     return blob || file;
   }
 
+  function withTimeout(promise, ms, message) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+    ]);
+  }
+
   async function uploadImage(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -180,11 +187,15 @@
     saveBtn.disabled = true;
     try {
       statusEl2.textContent = 'מכווץ תמונה...';
-      const compressed = await compressImage(file);
+      const compressed = await withTimeout(compressImage(file), 15000, 'כיווץ התמונה נתקע — נסה תמונה אחרת.');
       statusEl2.textContent = 'מעלה תמונה...';
       const path = `products/${Date.now()}.jpg`;
       const fileRef = storageRef(storage, path);
-      await uploadBytes(fileRef, compressed, { contentType: 'image/jpeg' });
+      await withTimeout(
+        uploadBytes(fileRef, compressed, { contentType: 'image/jpeg' }),
+        25000,
+        'ההעלאה נתקעה — בדוק את החיבור לאינטרנט ונסה שוב.'
+      );
       const url = await getDownloadURL(fileRef);
       document.getElementById('f_image').value = url;
       preview.src = url;
