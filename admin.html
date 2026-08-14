@@ -84,7 +84,7 @@
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
   import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
   import { firebaseConfig } from './assets/firebase-config.js';
 
   const app = initializeApp(firebaseConfig);
@@ -154,18 +154,42 @@
     document.getElementById('f_imageFile').addEventListener('change', uploadImage);
   }
 
+  // Resizes/re-encodes to JPEG client-side so a multi-MB phone photo doesn't
+  // have to travel over the wire in full before it can be saved.
+  async function compressImage(file, maxDim = 1600, quality = 0.82) {
+    const bitmap = await createImageBitmap(file);
+    let { width, height } = bitmap;
+    if (width > maxDim || height > maxDim) {
+      const scale = maxDim / Math.max(width, height);
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = width; canvas.height = height;
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, width, height);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
+    return blob || file;
+  }
+
   async function uploadImage(e) {
     const file = e.target.files[0];
     if (!file) return;
     const statusEl2 = document.getElementById('imageUploadStatus');
     const preview = document.getElementById('imagePreview');
     const saveBtn = document.getElementById('saveProductBtn');
-    statusEl2.textContent = 'מעלה תמונה, נא להמתין לפני שמירה...';
     saveBtn.disabled = true;
     try {
-      const path = `products/${Date.now()}_${file.name}`;
+      statusEl2.textContent = 'מכווץ תמונה...';
+      const compressed = await compressImage(file);
+      const path = `products/${Date.now()}.jpg`;
       const fileRef = storageRef(storage, path);
-      await uploadBytes(fileRef, file);
+      const task = uploadBytesResumable(fileRef, compressed, { contentType: 'image/jpeg' });
+      await new Promise((resolve, reject) => {
+        task.on('state_changed', snap => {
+          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+          statusEl2.textContent = `מעלה תמונה... ${pct}%`;
+        }, reject, resolve);
+      });
       const url = await getDownloadURL(fileRef);
       document.getElementById('f_image').value = url;
       preview.src = url;
