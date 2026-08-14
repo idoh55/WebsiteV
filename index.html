@@ -451,6 +451,15 @@
     display:block;
   }
   html[dir="rtl"] .kicker{letter-spacing:0.02em;}
+  .kicker.has-dot{display:inline-flex; align-items:center; gap:10px;}
+  .kicker.has-dot::before{
+    content:"";
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--rust);
+    box-shadow:0 0 0 4px rgba(214,69,92,0.18);
+    flex-shrink:0;
+  }
   .section-head{
     max-width:640px;
     margin-bottom:64px;
@@ -612,6 +621,17 @@
     width:8px;height:8px;border-radius:50%;
     background:rgba(255,255,255,0.35);
   }
+  .card .mini-bag::after{
+    content:"";
+    position:absolute;
+    bottom:-3px; right:-3px;
+    width:12px;height:12px;
+    border-radius:50%;
+    border:2px solid var(--espresso);
+  }
+  html[dir="rtl"] .card .mini-bag::after{right:auto; left:-3px;}
+  .card .mini-bag.status-live::after{background:var(--moss);}
+  .card .mini-bag.status-soon::after{background:var(--ochre);}
   .card .tag-row{
     font-size:11.5px;
     letter-spacing:0.06em;
@@ -727,7 +747,7 @@
     text-align:center;
   }
   .waitlist .kicker{color:#F0A9B4;}
-  .waitlist-count .stat:nth-child(2) .num{color:var(--moss);}
+  .waitlist-count .stat:nth-child(1) .num{color:var(--moss);}
   .waitlist h2{
     font-size:clamp(38px,5.5vw,58px);
     line-height:1.08;
@@ -1066,7 +1086,7 @@
         <span class="eyebrow" data-i18n="hero.eyebrow">בקרוב</span>
         <!-- Wordmark intentionally stays "I do." in both languages — see note in <head>. -->
         <h1 style="font-family:var(--font-serif);font-weight:600;color:#1C1712">i do<span style="color:var(--rust)">.</span></h1>
-        <p class="hero-sub" data-i18n-html="hero.sub" style="color:#000000;background-color:#F1E1D4"><span style="color:#000000;font-size:25px">בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.</span></p>
+        <p class="hero-sub" data-i18n-html="hero.sub">בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.</p>
         <div class="hero-actions">
           <a href="#join" class="btn btn-primary" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
           <a href="#story" class="btn btn-ghost" data-i18n="cta.readStory">הרקע</a>
@@ -1089,7 +1109,7 @@
   <section class="showcase" id="coffee">
     <div class="container">
       <div class="section-head reveal is-visible">
-        <span class="kicker" data-i18n="showcase.kicker">התפריט (בקרוב)</span>
+        <span class="kicker has-dot" data-i18n="showcase.kicker">התפריט (בקרוב)</span>
         <h2 data-i18n-html="showcase.heading">השקיות עדיין בעיצוב.<br>הקפה לא מחכה.</h2>
       </div>
 
@@ -1144,9 +1164,7 @@
       </div>
 
       <div class="waitlist-count reveal reveal-stagger is-visible">
-        <div class="stat" style="--i:0"><div class="num">1</div><div class="label" data-i18n="stat1.label">מייסד</div></div>
-        <div class="stat" style="--i:1"><div class="num">100%</div><div class="label" data-i18n="stat2.label">קלייה מוקפדת</div></div>
-        <div class="stat" style="--i:2"><div class="num">∞</div><div class="label" data-i18n="stat3.label">כוסות שנטעמו</div></div>
+        <div class="stat" style="--i:0"><div class="num">100%</div><div class="label" data-i18n="stat2.label">קלייה מוקפדת</div></div>
       </div>
     </div>
   </section>
@@ -1270,9 +1288,7 @@
         "waitlist.fine": "No spam, ever — just a note when the first roast ships.",
         "waitlist.successStrong": "You're on the list.",
         "waitlist.successText": "We'll email you the moment the first roast is ready to ship.",
-        "stat1.label": "Founder",
         "stat2.label": "Small batch",
-        "stat3.label": "Cups tasted",
         "footer.brandDesc": "A small-batch coffee roastery, founder-led from the very first bag. Currently roasting, tasting, and getting ready to ship.",
         "footer.contactH4": "Contact",
         "footer.basedIn": "Based in — TBD",
@@ -1289,7 +1305,7 @@
         "cta.joinWaitlist": "אני רוצה עדכונים!",
         "cta.readStory": "הרקע",
         "hero.eyebrow": "בקרוב",
-        "hero.sub": "<span style=\"color:#000000;font-size:25px\">בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.</span>",
+        "hero.sub": "בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.",
         "bag.sub": "מקור יחיד · 250 גרם",
         "scroll.label": "גללו",
         "story.kicker": "הסיפור",
@@ -1328,9 +1344,7 @@
         "waitlist.fine": "",
         "waitlist.successStrong": "אתם ברשימה.",
         "waitlist.successText": "נשלח לכם מייל ברגע שהקלייה הראשונה מוכנה לצאת.",
-        "stat1.label": "מייסד",
         "stat2.label": "קלייה מוקפדת",
-        "stat3.label": "כוסות שנטעמו",
         "footer.brandDesc": "בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.",
         "footer.contactH4": "יצירת קשר",
         "footer.basedIn": "מיקום — יעודכן בקרוב",
@@ -1665,7 +1679,7 @@
     const buy = p.comingSoon ? '' : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">הוסף לסל</button></div>`;
     return `<div class="card ${cls}" style="--i:${i}">${bg}
       ${badge}
-      <div class="mini-bag"></div>
+      <div class="mini-bag ${p.comingSoon ? 'status-soon' : 'status-live'}" title="${p.comingSoon ? 'בקרוב' : 'זמין'}"></div>
       <span class="tag-row">${esc(p.tag || '')}</span>
       <h3>${esc(p.name)}</h3>
       ${note}
