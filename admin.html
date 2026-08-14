@@ -84,7 +84,7 @@
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
   import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
   import { firebaseConfig } from './assets/firebase-config.js';
 
   const app = initializeApp(firebaseConfig);
@@ -181,15 +181,10 @@
     try {
       statusEl2.textContent = 'מכווץ תמונה...';
       const compressed = await compressImage(file);
+      statusEl2.textContent = 'מעלה תמונה...';
       const path = `products/${Date.now()}.jpg`;
       const fileRef = storageRef(storage, path);
-      const task = uploadBytesResumable(fileRef, compressed, { contentType: 'image/jpeg' });
-      await new Promise((resolve, reject) => {
-        task.on('state_changed', snap => {
-          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-          statusEl2.textContent = `מעלה תמונה... ${pct}%`;
-        }, reject, resolve);
-      });
+      await uploadBytes(fileRef, compressed, { contentType: 'image/jpeg' });
       const url = await getDownloadURL(fileRef);
       document.getElementById('f_image').value = url;
       preview.src = url;
