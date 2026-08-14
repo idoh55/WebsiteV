@@ -146,6 +146,7 @@
           <button id="saveProductBtn">שמירה</button>
           <button type="button" class="cancel" id="cancelProductBtn">ביטול</button>
         </div>
+        <div class="full" id="saveProductStatus" style="font-size:12.5px;color:var(--rust);"></div>
       </div>`;
     document.getElementById('saveProductBtn').addEventListener('click', saveProduct);
     document.getElementById('cancelProductBtn').addEventListener('click', () => { formEl.innerHTML = ''; editingId = null; });
@@ -175,6 +176,8 @@
   document.getElementById('addProductBtn').addEventListener('click', () => { editingId = null; renderForm(); });
 
   async function saveProduct() {
+    const statusEl3 = document.getElementById('saveProductStatus');
+    statusEl3.textContent = '';
     const data = {
       name: document.getElementById('f_name').value.trim(),
       price: Number(document.getElementById('f_price').value) || 0,
@@ -188,10 +191,14 @@
       comingSoon: document.getElementById('f_comingSoon').checked,
     };
     if (!data.name) { alert('נא להזין שם מוצר'); return; }
-    if (editingId) await updateDoc(doc(db, 'products', editingId), data);
-    else await addDoc(collection(db, 'products'), data);
-    formEl.innerHTML = ''; editingId = null;
-    loadProducts();
+    try {
+      if (editingId) await updateDoc(doc(db, 'products', editingId), data);
+      else await addDoc(collection(db, 'products'), data);
+      formEl.innerHTML = ''; editingId = null;
+      loadProducts();
+    } catch (err) {
+      statusEl3.textContent = 'שגיאה בשמירת המוצר: ' + err.message;
+    }
   }
 
   async function loadProducts() {
