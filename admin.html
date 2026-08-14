@@ -130,7 +130,10 @@
         <label>תגית (למשל: נטורל · דרום אמריקה) <input id="f_tag" value="${p.tag || ''}"></label>
         <label>מלאי <input id="f_stock" type="number" value="${p.stock ?? 0}"></label>
         <label>סדר תצוגה <input id="f_order" type="number" value="${p.order ?? 0}"></label>
-        <label>תמונה (URL) <input id="f_image" value="${p.image || ''}"></label>
+        <label class="full">תמונה (URL, כולל קישורי Google Drive)
+          <input id="f_image" value="${p.image || ''}">
+          <img id="imagePreview" src="${p.image || ''}" style="max-width:160px;max-height:100px;border-radius:8px;margin-top:8px;${p.image ? '' : 'display:none;'}">
+        </label>
         <label class="full">תיאור <textarea id="f_note" rows="2">${p.note || ''}</textarea></label>
         <label class="full">תג מיוחד (אופציונלי, למשל "מהדורה מוגבלת") <input id="f_badge" value="${p.badge || ''}"></label>
         <div class="full checkbox-row"><input type="checkbox" id="f_active" ${p.active !== false ? 'checked' : ''}> <span>פעיל באתר</span></div>
@@ -143,6 +146,23 @@
       </div>`;
     document.getElementById('saveProductBtn').addEventListener('click', saveProduct);
     document.getElementById('cancelProductBtn').addEventListener('click', () => { formEl.innerHTML = ''; editingId = null; });
+    document.getElementById('f_image').addEventListener('blur', normalizeImageField);
+  }
+
+  // Converts a pasted Google Drive share link (file/d/<id>/view, open?id=<id>,
+  // uc?id=<id>...) into a direct-loadable image URL. Leaves any other URL as-is.
+  function driveShareLinkToDirect(url) {
+    const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    return m ? `https://lh3.googleusercontent.com/d/${m[1]}` : url;
+  }
+
+  function normalizeImageField() {
+    const input = document.getElementById('f_image');
+    const preview = document.getElementById('imagePreview');
+    const url = input.value.trim();
+    if (url.includes('drive.google.com')) input.value = driveShareLinkToDirect(url);
+    if (input.value) { preview.src = input.value; preview.style.display = 'block'; }
+    else { preview.style.display = 'none'; }
   }
 
   document.getElementById('addProductBtn').addEventListener('click', () => { editingId = null; renderForm(); });
