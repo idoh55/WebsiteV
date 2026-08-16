@@ -6,6 +6,41 @@
 const admin = require('./_firebase-admin');
 const db = admin.firestore();
 
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// Best-effort — a failed/unconfigured notification should never break the
+// webhook's core job of recording the paid order and decrementing stock.
+async function sendOrderNotification(order) {
+  if (!process.env.RESEND_API_KEY || !process.env.ORDER_NOTIFY_EMAIL) return;
+  const itemsHtml = order.items.map(i => `${escapeHtml(i.name)} × ${i.qty} — ${i.price * i.qty} ₪`).join('<br>');
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'I do Coffee <onboarding@resend.dev>',
+        to: process.env.ORDER_NOTIFY_EMAIL,
+        subject: `הזמנה חדשה — ${order.amount} ₪`,
+        html: `<div dir="rtl" style="font-family:sans-serif">
+          <h2>הזמנה חדשה!</h2>
+          <p><strong>שם:</strong> ${escapeHtml(order.fullName || '—')}</p>
+          <p><strong>טלפון:</strong> ${escapeHtml(order.phone || '—')}</p>
+          <p><strong>סה"כ:</strong> ${order.amount} ₪</p>
+          <p><strong>פריטים:</strong><br>${itemsHtml}</p>
+        </div>`,
+      }),
+    });
+    if (!r.ok) console.error('Resend notification failed:', r.status, await r.text());
+  } catch (e) {
+    console.error('Failed to send order notification email:', e.message);
+  }
+}
+
 async function fetchWithTimeout(url, options, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -94,27 +129,25 @@ module.exports = async (req, res) => {
     return;
   }
 
-  if (result.Operation === 'ChargeOnly') {
-    update.status = 'paid';
-    update.cardcomTranzactionId = result.TranzactionId;
-    // decrement stock for each item
-    await db.runTransaction(async (tx) => {
-      for (const item of order.items) {
-        const ref = db.collection('products').doc(item.id);
-        const snap = await tx.get(ref);
-        if (!snap.exists) continue;
-        const stock = (snap.data().stock ?? 0) - item.qty;
-        tx.update(ref, { stock: Math.max(0, stock) });
-      }
-      tx.update(orderDoc.ref, update);
-    });
-  } else if (result.Operation === 'CreateTokenOnly') {
-    update.status = 'pending_charge';
-    update.cardcomTranzactionId = 0;
-    await orderDoc.ref.update(update);
-  } else {
-    await orderDoc.ref.update(update);
-  }
+  // This checkout flow only ever requests Operation: 'ChargeOnly' (see
+  // create-cardcom-payment.js) — there's no token-only flow — so a
+  // successful ResponseCode here always means a real charge. Not gating on
+  // the echoed-back Operation string too, since that's an extra field that
+  // could silently fail to match and skip the stock decrement entirely.
+  update.status = 'paid';
+  update.cardcomTranzactionId = result.TranzactionId;
+  await db.runTransaction(async (tx) => {
+    for (const item of order.items) {
+      const ref = db.collection('products').doc(item.id);
+      const snap = await tx.get(ref);
+      if (!snap.exists) continue;
+      const stock = (snap.data().stock ?? 0) - item.qty;
+      tx.update(ref, { stock: Math.max(0, stock) });
+    }
+    tx.update(orderDoc.ref, update);
+  });
+
+  await sendOrderNotification(order);
 
   res.status(200).end();
 };

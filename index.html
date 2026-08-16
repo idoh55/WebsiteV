@@ -741,8 +741,9 @@
     max-width:80%;
   }
   .placeholder-badge{
-    position:absolute;
-    top:22px;left:22px;
+    display:block;
+    width:fit-content;
+    align-self:flex-start;
     font-size:10px;
     letter-spacing:0.1em;
     text-transform:uppercase;
@@ -750,8 +751,9 @@
     border-radius:100px;
     background:rgba(255,255,255,0.14);
     border:1px solid rgba(255,255,255,0.2);
+    margin-bottom:8px;
   }
-  html[dir="rtl"] .placeholder-badge{left:auto; right:22px; letter-spacing:0.02em;}
+  html[dir="rtl"] .placeholder-badge{letter-spacing:0.02em;}
 
   .showcase-note{
     margin-top:34px;
@@ -1079,6 +1081,7 @@
     .footer-top{grid-template-columns:1fr;}
     .waitlist-count{gap:32px;}
     .nav-right{gap:10px;}
+    .nav-cta{display:none;}
     .edit-toolbar-inner{flex-direction:column; align-items:stretch;}
     .edit-toolbar-fields{order:2;}
     .edit-toolbar-actions{order:3; justify-content:stretch;}
@@ -1800,8 +1803,8 @@
     const note = p.note ? `<p class="note">${esc(p.note)}</p>` : '';
     const buy = p.comingSoon ? '' : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">${ui().addToCart}</button></div>`;
     return `<div class="card" data-id="${esc(p.id)}" style="--i:${i}">${bg}
-      ${badge}
       <div class="mini-bag ${p.comingSoon ? 'status-soon' : 'status-live'}" title="${p.comingSoon ? ui().comingSoonTitle : ui().availableTitle}"></div>
+      ${badge}
       <span class="tag-row">${esc(p.tag || '')}</span>
       <h3>${esc(p.name)}</h3>
       ${note}
