@@ -18,8 +18,9 @@ async function fetchWithTimeout(url, options, timeoutMs) {
 
 async function getLpResult(lowProfileId) {
   const payload = {
-    TerminalNumber: Number(process.env.CARDCOM_TERMINAL_NUMBER || 1000),
-    ApiName: process.env.CARDCOM_API_NAME || 'CardTest1994',
+    TerminalNumber: Number(process.env.CARDCOM_TERMINAL_NUMBER),
+    ApiName: process.env.CARDCOM_API_NAME,
+    ApiPassword: process.env.CARDCOM_API_PASSWORD,
     LowProfileId: lowProfileId,
   };
   const opts = {
@@ -40,6 +41,11 @@ async function getLpResult(lowProfileId) {
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).end();
+    return;
+  }
+  if (!process.env.CARDCOM_TERMINAL_NUMBER || !process.env.CARDCOM_API_NAME || !process.env.CARDCOM_API_PASSWORD) {
+    console.error('Missing CARDCOM_TERMINAL_NUMBER / CARDCOM_API_NAME / CARDCOM_API_PASSWORD env vars');
+    res.status(500).end();
     return;
   }
   const { LowProfileId } = req.body || {};

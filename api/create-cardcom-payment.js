@@ -1,6 +1,7 @@
 // Deploy as a serverless function (Vercel: /api). Server-side only.
-// Requires: FIREBASE_SERVICE_ACCOUNT, CARDCOM_TERMINAL_NUMBER, CARDCOM_API_NAME env vars.
-// See SETUP-FIREBASE.md for setup.
+// Requires: FIREBASE_SERVICE_ACCOUNT, CARDCOM_TERMINAL_NUMBER, CARDCOM_API_NAME,
+// CARDCOM_API_PASSWORD env vars — set in Vercel Project Settings > Environment
+// Variables, never committed to the repo. See SETUP-FIREBASE.md for Firebase setup.
 //
 // Trusts only { id, qty } from the client — real name/price/stock always come from
 // Firestore, so a tampered client request can't change what gets charged.
@@ -9,14 +10,19 @@ const admin = require('./_firebase-admin');
 const db = admin.firestore();
 
 const CARDCOM_ENDPOINT = 'https://secure.cardcom.solutions/api/v11/LowProfile/Create';
-const YOUR_SITE_URL = 'https://your-domain.example';
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
+  if (!process.env.CARDCOM_TERMINAL_NUMBER || !process.env.CARDCOM_API_NAME || !process.env.CARDCOM_API_PASSWORD) {
+    console.error('Missing CARDCOM_TERMINAL_NUMBER / CARDCOM_API_NAME / CARDCOM_API_PASSWORD env vars');
+    res.status(500).json({ error: 'Payment provider is not configured' });
+    return;
+  }
   try {
+    const siteUrl = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}`;
     const { items, fullName, phone } = req.body;
     if (!items || !items.length) {
       res.status(400).json({ error: 'Cart is empty' });
@@ -63,14 +69,15 @@ module.exports = async (req, res) => {
     });
 
     const payload = {
-      TerminalNumber: Number(process.env.CARDCOM_TERMINAL_NUMBER || 1000),
-      ApiName: process.env.CARDCOM_API_NAME || 'CardTest1994',
+      TerminalNumber: Number(process.env.CARDCOM_TERMINAL_NUMBER),
+      ApiName: process.env.CARDCOM_API_NAME,
+      ApiPassword: process.env.CARDCOM_API_PASSWORD,
       Operation: 'ChargeOnly',
       ReturnValue: orderRef.id,
       Amount: amount,
-      SuccessRedirectUrl: `${YOUR_SITE_URL}/?checkout=success`,
-      FailedRedirectUrl: `${YOUR_SITE_URL}/?checkout=cancelled`,
-      WebHookUrl: `${YOUR_SITE_URL}/api/cardcom-webhook`,
+      SuccessRedirectUrl: `${siteUrl}/?checkout=success`,
+      FailedRedirectUrl: `${siteUrl}/?checkout=cancelled`,
+      WebHookUrl: `${siteUrl}/api/cardcom-webhook`,
       Language: 'he',
       ISOCoinId: 1,
       UIDefinition: {

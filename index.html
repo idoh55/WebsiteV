@@ -684,6 +684,26 @@
   .cart-checkout:disabled{opacity:0.6; cursor:default; transform:none;}
   html[dir="rtl"] .cart-checkout svg{transform:scaleX(-1);}
 
+  /* ---------- post-checkout result banner ---------- */
+  .checkout-banner{
+    position:fixed; top:96px; left:50%; z-index:1000;
+    display:flex; align-items:center; gap:14px;
+    padding:14px 18px 14px 22px;
+    border-radius:100px;
+    background:var(--ink); color:var(--cream);
+    font-size:14px; font-weight:500;
+    box-shadow:0 20px 40px -15px rgba(28,23,18,0.4);
+    opacity:0; pointer-events:none;
+    transform:translateX(-50%) translateY(-16px);
+    transition:opacity .35s var(--ease), transform .35s var(--ease);
+    max-width:min(440px, 90vw);
+  }
+  .checkout-banner.show{opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0);}
+  .checkout-banner.success{background:var(--moss-dark);}
+  .checkout-banner.failed{background:var(--rust-dark);}
+  .checkout-banner button{background:none; border:none; color:inherit; opacity:0.75; cursor:pointer; font-size:13px; flex-shrink:0; padding:2px;}
+  .checkout-banner button:hover{opacity:1;}
+
   /* ---------- expanding product detail ---------- */
   .card{cursor:pointer;}
   .product-overlay{position:fixed;inset:0;background:rgba(28,23,18,0.55);backdrop-filter:blur(2px);z-index:950;opacity:0;pointer-events:none;transition:opacity .35s var(--ease);}
@@ -1194,6 +1214,12 @@
 
 </main>
 
+<!-- ================= CHECKOUT RESULT BANNER ================= -->
+<div class="checkout-banner" id="checkoutBanner">
+  <span id="checkoutBannerText"></span>
+  <button type="button" id="checkoutBannerClose" aria-label="סגור">✕</button>
+</div>
+
 <!-- ================= CART DRAWER ================= -->
 <div class="cart-overlay" id="cartOverlay"></div>
 <aside class="cart-drawer" id="cartDrawer">
@@ -1578,13 +1604,52 @@
     });
   }
   window.wireAddToCartButtons = wireAddToCartButtons;
+
+  // ---------- post-checkout redirect (?checkout=success|cancelled from CardCom) ----------
+  const CHECKOUT_MSGS = {
+    he: {
+      success: 'התשלום התקבל בהצלחה — תודה על ההזמנה! נעדכן אתכם כשהשקית בדרך.',
+      cancelled: 'התשלום בוטל או נכשל — העגלה שלכם עדיין שמורה, אפשר לנסות שוב.',
+    },
+    en: {
+      success: "Payment received — thank you for your order! We'll update you when your bag ships.",
+      cancelled: 'Payment was cancelled or failed — your cart is still saved, feel free to try again.',
+    },
+  };
+  let checkoutBannerTimer = null;
+  function showCheckoutBanner(kind, text){
+    const banner = document.getElementById('checkoutBanner');
+    if (!banner) return;
+    document.getElementById('checkoutBannerText').textContent = text;
+    banner.classList.remove('success', 'failed');
+    banner.classList.add(kind === 'success' ? 'success' : 'failed', 'show');
+    clearTimeout(checkoutBannerTimer);
+    checkoutBannerTimer = setTimeout(() => banner.classList.remove('show'), 10000);
+  }
+  function handleCheckoutRedirect(){
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('checkout');
+    if (status !== 'success' && status !== 'cancelled') return;
+    if (status === 'success') saveCart([]);
+    const msgs = CHECKOUT_MSGS[currentLang] || CHECKOUT_MSGS.he;
+    showCheckoutBanner(status, msgs[status]);
+    params.delete('checkout');
+    const newSearch = params.toString();
+    window.history.replaceState({}, '', window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     renderCart();
     wireAddToCartButtons();
+    handleCheckoutRedirect();
     document.getElementById('cartToggle')?.addEventListener('click', openCart);
     document.getElementById('cartClose')?.addEventListener('click', closeCart);
     document.getElementById('cartOverlay')?.addEventListener('click', closeCart);
     document.getElementById('cartCheckout')?.addEventListener('click', goToCheckout);
+    document.getElementById('checkoutBannerClose')?.addEventListener('click', () => {
+      document.getElementById('checkoutBanner')?.classList.remove('show');
+      clearTimeout(checkoutBannerTimer);
+    });
   });
 
   function switchLang(lang){
