@@ -1,112 +1,340 @@
 /* ============================================================
    I do — CardCom hosted checkout page styling
    ============================================================
-   Paste this into CardCom's custom-CSS field for the payment page
-   template (the one identified by your page number + UID).
-
-   IMPORTANT CAVEAT: this was written without being able to see
-   CardCom's actual page HTML (blocked from browsing it directly),
-   so the selectors below are broad/generic guesses at common form
-   patterns — button, input, label, common class names like .btn,
-   .form-control, etc. Some may not match CardCom's real markup.
-   After pasting, preview the page and tell me what still looks
-   like CardCom's default styling — ideally with a screenshot, or by
-   right-clicking an unstyled element → Inspect → sharing the class/id
-   you see there — and I'll target it precisely.
+   Rewritten against CardCom's own example template (real class
+   names confirmed: .payment-container, .form-input, .payment-button,
+   .order-summary, etc.) — same structure/behavior as their demo,
+   restyled to the site's actual cream/ink/rust palette and fonts
+   instead of the purple/pink gradient glassmorphism look.
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&display=swap');
 
-:root{
-  --cream:#f6f1e7;
-  --cream-2:#efe7d8;
-  --ink:#1c1712;
-  --ink-soft:#3a322a;
-  --rust:#D6455C;
-  --rust-dark:#A8283D;
-  --line:#e4dbcb;
-  --radius:16px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-html, body{
-  background:var(--cream) !important;
-  color:var(--ink) !important;
-  font-family:'Rubik', sans-serif !important;
-  direction:rtl;
+body {
+  font-family: 'Rubik', system-ui, sans-serif;
+  background: #f6f1e7;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  direction: rtl;
+  text-align: right;
+  color: #1c1712;
 }
 
-/* headings */
-h1, h2, h3, h4,
-.title, .page-title, .payment-title{
-  font-family:'Frank Ruhl Libre', serif !important;
-  font-weight:600 !important;
-  color:var(--ink) !important;
+.payment-container {
+  background: #ffffff;
+  border: 1px solid #e4dbcb;
+  border-radius: 22px;
+  box-shadow: 0 25px 50px -25px rgba(28, 23, 18, 0.25);
+  width: 100%;
+  max-width: 500px;
+  padding: 40px;
+  position: relative;
+  animation: slideUp 0.6s ease-out;
 }
 
-/* the card/panel that wraps the payment form, if CardCom wraps it in one */
-.card, .panel, .box, .payment-box, .payment-card, .container-box{
-  background:#fff !important;
-  border:1px solid var(--line) !important;
-  border-radius:var(--radius) !important;
-  box-shadow:0 20px 45px -25px rgba(28,23,18,0.35) !important;
+.payment-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #D6455C;
+  border-radius: 22px 22px 0 0;
 }
 
-/* form fields */
-input, select, textarea,
-.form-control{
-  font-family:'Rubik', sans-serif !important;
-  background:#fff !important;
-  color:var(--ink) !important;
-  border:1.5px solid var(--line) !important;
-  border-radius:10px !important;
-  padding:11px 14px !important;
-}
-input:focus, select:focus, textarea:focus,
-.form-control:focus{
-  outline:none !important;
-  border-color:var(--rust) !important;
-  box-shadow:0 0 0 3px rgba(214,69,92,0.15) !important;
+.payment-header {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
-label, .form-label{
-  font-family:'Rubik', sans-serif !important;
-  color:var(--ink-soft) !important;
-  font-size:13.5px !important;
-  font-weight:500 !important;
+.payment-title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: #1c1712;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
 }
 
-/* the pay / submit button */
-button, input[type="submit"], input[type="button"],
-.btn, .button, .btn-primary, .pay-button, .submit-button{
-  font-family:'Rubik', sans-serif !important;
-  font-weight:600 !important;
-  background:var(--ink) !important;
-  color:var(--cream) !important;
-  border:none !important;
-  border-radius:100px !important;
-  padding:14px 28px !important;
-  cursor:pointer !important;
-  transition:background .25s ease, transform .25s ease !important;
-}
-button:hover, input[type="submit"]:hover, input[type="button"]:hover,
-.btn:hover, .button:hover, .btn-primary:hover, .pay-button:hover, .submit-button:hover{
-  background:var(--rust) !important;
-  transform:translateY(-1px) !important;
+.payment-subtitle {
+  color: #3a322a;
+  opacity: 0.75;
+  font-size: 15px;
+  font-weight: 400;
 }
 
-/* links */
-a{ color:var(--rust-dark) !important; }
-
-/* error / validation messages */
-.error, .invalid-feedback, .text-danger, .field-error, .validation-message{
-  color:var(--rust-dark) !important;
-  font-family:'Rubik', sans-serif !important;
-  font-size:13px !important;
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-/* footer / fine print, if present */
-.footer, .fine-print, .terms-text{
-  color:var(--ink-soft) !important;
-  opacity:0.7;
-  font-size:12px !important;
+.form-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #3a322a;
+  margin-bottom: 8px;
+  font-size: 13.5px;
+  transition: color 0.25s ease;
+}
+
+.form-input {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1.5px solid #e4dbcb;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #1c1712;
+  background: #fff;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  outline: none;
+  font-family: inherit;
+}
+
+.form-input::placeholder {
+  color: #9a8f7c;
+}
+
+.form-input:focus {
+  border-color: #D6455C;
+  box-shadow: 0 0 0 3px rgba(214, 69, 92, 0.15);
+}
+
+.form-input:hover:not(:focus) {
+  border-color: #c7bba3;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233a322a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: left 16px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-left: 44px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.form-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #D6455C;
+  cursor: pointer;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  color: #3a322a;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.payment-button {
+  background: #1c1712;
+  color: #f6f1e7;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 100px;
+  font-size: 15.5px;
+  font-weight: 600;
+  font-family: 'Rubik', sans-serif;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+  margin-top: 8px;
+}
+
+.payment-button:hover {
+  background: #D6455C;
+  transform: translateY(-2px);
+}
+
+.payment-button:active {
+  transform: translateY(0);
+}
+
+.order-summary {
+  background: #efe7d8;
+  border: 1px solid #e4dbcb;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.summary-title {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-weight: 600;
+  color: #1c1712;
+  margin-bottom: 14px;
+  font-size: 17px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(28, 23, 18, 0.08);
+  color: #3a322a;
+  font-size: 14.5px;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+  font-weight: 600;
+  font-size: 17px;
+  color: #1c1712;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1.5px solid rgba(28, 23, 18, 0.14);
+}
+
+.payment-methods {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+}
+
+.payment-method {
+  width: 58px;
+  height: 38px;
+  border: 1.5px solid #e4dbcb;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+  background: #fff;
+}
+
+.payment-method:hover,
+.payment-method.active {
+  border-color: #D6455C;
+  transform: translateY(-2px);
+}
+
+.error-message {
+  color: #A8283D;
+  font-size: 13.5px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.success-message {
+  color: #4d7a5f;
+  font-size: 13.5px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.security-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #3a322a;
+  opacity: 0.65;
+  font-size: 11.5px;
+  margin-top: 20px;
+  padding: 12px;
+  background: #efe7d8;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.loading {
+  position: relative;
+  color: transparent;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(246, 241, 231, 0.4);
+  border-top: 2px solid #f6f1e7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 15px;
+  }
+
+  .payment-container {
+    padding: 30px 20px;
+    border-radius: 18px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .payment-title {
+    font-size: 24px;
+  }
+
+  .payment-methods {
+    flex-wrap: wrap;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.form-group:hover .form-label {
+  color: #1c1712;
 }
