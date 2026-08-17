@@ -78,6 +78,11 @@ module.exports = async (req, res) => {
     res.status(405).end();
     return;
   }
+  // Logged unconditionally, before any early return, so we can see the real
+  // payload shape CardCom actually sends — including from the separate
+  // dashboard-level "transaction confirmation" notification, if that's a
+  // different shape than the LowProfileId the API's WebHookUrl param sends.
+  console.log('CardCom webhook invoked. Body:', JSON.stringify(req.body));
   if (!process.env.CARDCOM_TERMINAL_NUMBER || !process.env.CARDCOM_API_NAME || !process.env.CARDCOM_API_PASSWORD) {
     console.error('Missing CARDCOM_TERMINAL_NUMBER / CARDCOM_API_NAME / CARDCOM_API_PASSWORD env vars');
     res.status(500).end();
@@ -85,6 +90,7 @@ module.exports = async (req, res) => {
   }
   const { LowProfileId } = req.body || {};
   if (!LowProfileId) {
+    console.warn('CardCom webhook: no LowProfileId in payload, ignoring.');
     res.status(200).end();
     return;
   }
