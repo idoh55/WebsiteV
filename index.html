@@ -525,65 +525,103 @@
   html[dir="rtl"] .showcase::before{left:auto; right:-160px;}
   .showcase .container{position:relative; z-index:1;}
   .bento{
-    display:grid;
-    grid-template-columns:repeat(4, 1fr);
-    grid-auto-rows:200px;
-    grid-auto-flow:dense;
-    gap:20px;
+    display:flex;
+    flex-direction:column;
+    border-top:1px solid var(--line);
   }
   .card{
     position:relative;
-    grid-column:span 2; grid-row:span 1;
-    border-radius:var(--radius);
-    padding:26px;
-    overflow:hidden;
+    display:grid;
+    grid-template-columns:48px 1fr auto;
+    grid-template-areas:
+      "index name price"
+      ".     meta  price";
+    column-gap:26px;
+    row-gap:8px;
+    align-items:center;
+    padding:30px 6px;
+    border-bottom:1px solid var(--line);
+    color:var(--ink);
+    cursor:pointer;
+    transition:background .3s var(--ease);
+  }
+  .card:hover{background:rgba(28,23,18,0.035);}
+  .card .row-index{
+    grid-area:index;
+    font-family:var(--font-sans);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    opacity:0.5;
+    font-variant-numeric:tabular-nums;
+  }
+  .card .name-col{
+    grid-area:name;
     display:flex;
-    flex-direction:column;
-    justify-content:flex-end;
-    color:var(--cream);
-    transition:transform .5s var(--ease), box-shadow .5s var(--ease);
-    isolation:isolate;
+    align-items:center;
+    gap:14px;
+    min-width:0;
   }
-  .card:hover{transform:translateY(-6px); box-shadow:0 30px 50px -25px rgba(28,23,18,0.35);}
-  .card::before{
-    content:"";
-    position:absolute; inset:0; z-index:-1;
+  .card .thumb{
+    width:44px;height:44px;
+    border-radius:10px;
+    flex-shrink:0;
+    background:var(--espresso) center/cover;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08);
   }
-
-  .card::before{background:var(--espresso);}
-
-  .card .mini-bag{
-    position:absolute;
-    top:22px;right:22px;
-    width:46px;height:64px;
-    border-radius:6px 6px 10px 10px;
-    background:rgba(255,255,255,0.14);
-    border:1px solid rgba(255,255,255,0.22);
+  .card .card-meta{
+    grid-area:meta;
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+    min-width:0;
   }
-  html[dir="rtl"] .card .mini-bag{right:auto; left:22px;}
-  .card .mini-bag::before{
-    content:"";
-    position:absolute; top:12px; left:50%; transform:translateX(-50%);
-    width:8px;height:8px;border-radius:50%;
-    background:rgba(255,255,255,0.35);
-  }
-  .card .mini-bag::after{
-    content:"";
-    position:absolute;
-    bottom:-3px; right:-3px;
-    width:12px;height:12px;
-    border-radius:50%;
-    border:2px solid var(--espresso);
-  }
-  html[dir="rtl"] .card .mini-bag::after{right:auto; left:-3px;}
-  .card .mini-bag.status-live::after{background:var(--moss);}
-  .card .mini-bag.status-soon::after{background:var(--ochre);}
   .card .tag-row{
-    font-size:11.5px;
-    letter-spacing:0.06em;
-    opacity:0.75;
-    margin-bottom:8px;
+    font-size:13.5px;
+    color:var(--ink-soft);
   }
+  .card .meta-sep{color:var(--line);}
+  .card .note{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    opacity:0.85;
+  }
+  .status-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .status-pill::before{
+    content:"";
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--ochre);
+  }
+  .card .buy-row{grid-area:price; display:flex; align-items:center; gap:14px; margin-top:0; justify-content:flex-end;}
+  .card .buy-row .price{color:var(--ink); font-size:17px;}
+  .card .row-arrow{
+    color:var(--rust);
+    font-size:16px;
+    line-height:1;
+    flex-shrink:0;
+    transition:transform .3s var(--ease);
+  }
+  html[dir="rtl"] .card .row-arrow{transform:scaleX(-1);}
+  .card:hover .row-arrow{transform:translateX(4px);}
+  html[dir="rtl"] .card:hover .row-arrow{transform:scaleX(-1) translateX(4px);}
+  .card .add-to-cart{
+    border-color:var(--line);
+    background:transparent;
+    color:var(--ink);
+  }
+  .card .add-to-cart:hover{background:var(--ink); color:var(--cream); transform:translateY(-2px);}
+
   .buy-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;position:relative;z-index:1;}
   .buy-row .price{font-family:var(--font-serif);font-size:18px;font-weight:600;color:var(--cream);}
   .add-to-cart{
@@ -681,14 +719,12 @@
 
   .card h3{
     font-family:var(--font-serif);
-    font-size:26px;
+    font-size:clamp(21px,2.4vw,28px);
     font-weight:500;
-    margin-bottom:6px;
-  }
-  .card p.note{
-    font-size:13.5px;
-    opacity:0.82;
-    max-width:80%;
+    line-height:1.15;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
   .placeholder-badge{
     display:block;
@@ -697,6 +733,7 @@
     font-size:10px;
     letter-spacing:0.1em;
     text-transform:uppercase;
+    font-family:var(--font-sans);
     padding:5px 10px;
     border-radius:100px;
     background:rgba(255,255,255,0.14);
@@ -704,6 +741,14 @@
     margin-bottom:8px;
   }
   html[dir="rtl"] .placeholder-badge{letter-spacing:0.02em;}
+  .card .placeholder-badge{
+    display:inline-block;
+    background:rgba(214,69,92,0.1);
+    border-color:transparent;
+    color:var(--rust-dark);
+    margin-bottom:0;
+    flex-shrink:0;
+  }
 
   .showcase-note{
     margin-top:34px;
@@ -1014,7 +1059,6 @@
   /* ================= RESPONSIVE ================= */
   @media (max-width: 920px){
     .story-grid{grid-template-columns:1fr; gap:48px;}
-    .bento{grid-template-columns:repeat(2,1fr); grid-auto-rows:180px;}
     .footer-top{grid-template-columns:1fr 1fr; row-gap:40px;}
   }
   @media (max-width: 620px){
@@ -1023,9 +1067,16 @@
     section{padding:100px 0;}
     .hero{padding-top:110px;}
     .waitlist-form{flex-direction:column;}
-    .bento{grid-template-columns:1fr; grid-auto-rows:auto;}
-    .card{min-height:170px;}
-    .card{grid-column:span 1; grid-row:auto;}
+    .card{
+      grid-template-columns:32px 1fr;
+      grid-template-areas:
+        "index name"
+        ".     meta"
+        ".     price";
+      row-gap:10px;
+      padding:24px 4px;
+    }
+    .card .buy-row{justify-content:flex-start; margin-top:2px;}
     .footer-top{grid-template-columns:1fr;}
     .waitlist-count{gap:32px;}
     .nav-right{gap:10px;}
@@ -1105,7 +1156,7 @@
 
       <p class="showcase-note reveal is-visible">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v14M1 8h14" stroke="#A8283D" stroke-width="1.4" stroke-linecap="round"></path></svg>
-        <span data-i18n="showcase.note">עיצוב השקיות עוד בעבודה — אלה דוגמאות זמניות.</span>
+        <span data-i18n="showcase.note">תמונות ופרטים מלאים עוד בדרך — הרשימה תתעדכן בהתאם.</span>
       </p>
     </div>
   </section>
@@ -1286,7 +1337,7 @@
         "card4.note": "you choose which bag arrives each month — a standing discount, early access to limited drops, and full flexibility to skip or cancel anytime.",
         "card5.tag": "Merch · Goods",
         "card5.title": "T-Shirt",
-        "showcase.note": "Real bag artwork is in the works — these are placeholder mockups sized and shaped to drop the final designs right in.",
+        "showcase.note": "Photos and full details are still on the way — the list will update as each roast is ready.",
         "waitlist.kicker": "Coming soon",
         "waitlist.h2": "Say <span class=\"italic\">I do</span><br>to early access.",
         "waitlist.sub": "Be first to know when the roaster fires up, the first bags ship, and early-access pricing opens. One email, when it matters — nothing else.",
@@ -1348,7 +1399,7 @@
         "card4.note": "אתם בוחרים איזו שקית מגיעה כל חודש — הנחה קבועה, גישה מוקדמת למהדורות מוגבלות, וגמישות מלאה לדלג או לבטל מתי שבא לכם.",
         "card5.tag": "מרצ' ומוצרים",
         "card5.title": "חולצה",
-        "showcase.note": "עיצוב השקיות עוד בעבודה — אלה דוגמאות זמניות.",
+        "showcase.note": "תמונות ופרטים מלאים עוד בדרך — הרשימה תתעדכן בהתאם.",
         "waitlist.kicker": "בקרוב",
         "waitlist.h2": "למצטרפים אליי לדרך",
         "waitlist.sub": "תהיו הראשונים לדעת מתי הקולה מתחילה לעבוד, מתי השקיות הראשונות יוצאות, ומתי נפתחת הרשמה מוקדמת במחיר מיוחד. מייל אחד, בדיוק כשצריך — ותו לא.",
@@ -1742,17 +1793,30 @@
 
   function cardHtml(p, i){
     p = localize(p);
-    const bg = p.image ? `<div style="position:absolute;inset:0;z-index:-1;background:url('${esc(p.image)}') center/cover"></div>` : '';
-    const badge = p.badge ? `<div class="placeholder-badge">${esc(p.badge)}</div>` : '';
-    const note = p.note ? `<p class="note">${esc(p.note)}</p>` : '';
-    const buy = p.comingSoon ? '' : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">${ui().addToCart}</button></div>`;
-    return `<div class="card" data-id="${esc(p.id)}" style="--i:${i}">${bg}
-      <div class="mini-bag ${p.comingSoon ? 'status-soon' : 'status-live'}" title="${p.comingSoon ? ui().comingSoonTitle : ui().availableTitle}"></div>
-      ${badge}
-      <span class="tag-row">${esc(p.tag || '')}</span>
-      <h3>${esc(p.name)}</h3>
-      ${note}
-      ${buy}
+    const num = String(i + 1).padStart(2, '0');
+    const thumb = p.image ? `<span class="thumb" style="background-image:url('${esc(p.image)}')"></span>` : '';
+    const badge = p.badge ? `<span class="placeholder-badge">${esc(p.badge)}</span>` : '';
+    const metaParts = [
+      p.tag ? `<span class="tag-row">${esc(p.tag)}</span>` : '',
+      (p.tag && p.note) ? `<span class="meta-sep">·</span>` : '',
+      p.note ? `<span class="note">${esc(p.note)}</span>` : '',
+    ].filter(Boolean).join('');
+    const meta = metaParts ? `<div class="card-meta">${metaParts}</div>` : '';
+    const buy = p.comingSoon
+      ? `<span class="status-pill">${ui().comingSoonTitle}</span>`
+      : `<span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">${ui().addToCart}</button>`;
+    return `<div class="card" data-id="${esc(p.id)}" style="--i:${i}">
+      <span class="row-index">R-${num}</span>
+      <div class="name-col">
+        ${thumb}
+        <h3>${esc(p.name)}</h3>
+        ${badge}
+      </div>
+      ${meta}
+      <div class="buy-row">
+        ${buy}
+        <span class="row-arrow" aria-hidden="true">→</span>
+      </div>
     </div>`;
   }
 
