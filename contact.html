@@ -30,6 +30,10 @@
   .lang-switch-mini a{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:100px;border:1.5px solid var(--line);color:var(--ink-soft);text-decoration:none;transition:background .2s,color .2s,border-color .2s;}
   .lang-switch-mini a.active{background:var(--ink);color:var(--cream);border-color:var(--ink);}
   .lang-switch-mini a:not(.active):hover{border-color:var(--ink-soft);color:var(--ink);}
+  :focus-visible{outline:2px solid var(--rust-dark);outline-offset:2px;}
+  .skip-link{position:absolute;top:-100px;left:12px;z-index:100;background:var(--ink);color:var(--cream);padding:12px 20px;border-radius:10px;font-weight:600;font-size:14px;text-decoration:none;transition:top .2s var(--ease);}
+  html[dir="rtl"] .skip-link{left:auto;right:12px;}
+  .skip-link:focus{top:12px;}
   main{padding:56px 0 100px;}
   .placeholder-note{background:var(--cream-2);border:1px dashed var(--rust-dark);border-radius:12px;padding:16px 18px;font-size:13.5px;color:var(--ink-soft);margin:0 0 40px;}
   .placeholder-note strong{color:var(--rust-dark);}
@@ -47,6 +51,8 @@
 </head>
 <body>
 
+<a href="#main" class="skip-link">דלג לתוכן הראשי</a>
+
 <header>
   <div class="container inner">
     <a href="index.html#top" class="logo">i do<span class="dot">.</span></a>
@@ -60,7 +66,7 @@
   </div>
 </header>
 
-<main>
+<main id="main" tabindex="-1">
   <div class="container">
     <div class="placeholder-note">
       טלפון וכתובת עדיין מסומנים כ־<span class="fill">מקום למילוי</span> — יש להשלים כשיהיו זמינים.
