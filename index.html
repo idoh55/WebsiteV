@@ -1310,7 +1310,7 @@
       <div class="footer-col">
         <h4 data-i18n="footer.contactH4">יצירת קשר</h4>
         <a href="mailto:hello@idocoffee.co">hello@idocoffee.co</a>
-        <a href="contact.html" data-i18n="footer.contactPage">צרו קשר</a>
+        <a href="contact.html" data-i18n="footer.contactPage" data-i18n-href="footer.contactHref">צרו קשר</a>
         <span data-i18n="footer.basedIn">מיקום — יעודכן בקרוב</span>
       </div>
       <div class="footer-col">
@@ -1322,14 +1322,14 @@
         <a href="#coffee" data-i18n="nav.coffee">הקפה</a>
         <a href="#story" data-i18n="nav.story">הסיפור</a>
         <a href="#join" data-i18n="nav.join">הצטרפות</a>
-        <a href="sitemap.html" data-i18n="footer.sitemap">מפת אתר</a>
+        <a href="sitemap.html" data-i18n="footer.sitemap" data-i18n-href="footer.sitemapHref">מפת אתר</a>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer.legalH4">מידע משפטי</h4>
-        <a href="terms.html" data-i18n="footer.terms">תקנון</a>
-        <a href="returns.html" data-i18n="footer.returns">ביטול והחזרות</a>
-        <a href="privacy.html" data-i18n="footer.privacy">מדיניות פרטיות</a>
-        <a href="accessibility.html" data-i18n="footer.accessibility">הצהרת נגישות</a>
+        <a href="terms.html" data-i18n="footer.terms" data-i18n-href="footer.termsHref">תקנון</a>
+        <a href="returns.html" data-i18n="footer.returns" data-i18n-href="footer.returnsHref">ביטול והחזרות</a>
+        <a href="privacy.html" data-i18n="footer.privacy" data-i18n-href="footer.privacyHref">מדיניות פרטיות</a>
+        <a href="accessibility.html" data-i18n="footer.accessibility" data-i18n-href="footer.accessibilityHref">הצהרת נגישות</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -1423,12 +1423,18 @@
         "footer.followH4": "Follow",
         "footer.siteH4": "Site",
         "footer.contactPage": "Contact us",
+        "footer.contactHref": "contact-en.html",
         "footer.sitemap": "Sitemap",
+        "footer.sitemapHref": "sitemap-en.html",
         "footer.legalH4": "Legal",
         "footer.terms": "Terms of service",
+        "footer.termsHref": "terms-en.html",
         "footer.returns": "Cancellations & returns",
+        "footer.returnsHref": "returns-en.html",
         "footer.privacy": "Privacy policy",
+        "footer.privacyHref": "privacy-en.html",
         "footer.accessibility": "Accessibility statement",
+        "footer.accessibilityHref": "accessibility-en.html",
         "footer.copyright": "© 2026 I do Coffee Roastery. All rights reserved."
     },
     "he": {
@@ -1498,12 +1504,18 @@
         "footer.followH4": "עקבו אחרינו",
         "footer.siteH4": "ניווט",
         "footer.contactPage": "צרו קשר",
+        "footer.contactHref": "contact.html",
         "footer.sitemap": "מפת אתר",
+        "footer.sitemapHref": "sitemap.html",
         "footer.legalH4": "מידע משפטי",
         "footer.terms": "תקנון",
+        "footer.termsHref": "terms.html",
         "footer.returns": "ביטול והחזרות",
+        "footer.returnsHref": "returns.html",
         "footer.privacy": "מדיניות פרטיות",
+        "footer.privacyHref": "privacy.html",
         "footer.accessibility": "הצהרת נגישות",
+        "footer.accessibilityHref": "accessibility.html",
         "footer.copyright": "© 2026 I do Coffee Roastery. כל הזכויות שמורות."
     }
 };
@@ -1543,6 +1555,10 @@
     document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
       const key = el.getAttribute('data-i18n-aria-label');
       if (dict[key] !== undefined) el.setAttribute('aria-label', dict[key]);
+    });
+    document.querySelectorAll('[data-i18n-href]').forEach(el => {
+      const key = el.getAttribute('data-i18n-href');
+      if (dict[key] !== undefined) el.setAttribute('href', dict[key]);
     });
     document.querySelectorAll('.lang-opt').forEach(el => {
       const active = el.getAttribute('data-lang') === lang;
