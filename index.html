@@ -250,27 +250,6 @@
     padding-bottom:80px;
     overflow:hidden;
   }
-  .hero-blob{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(70px);
-    opacity:0.55;
-    z-index:0;
-    animation:drift 16s ease-in-out infinite alternate;
-  }
-  .blob-1{width:520px;height:520px;background:radial-gradient(circle at 30% 30%, var(--rust), transparent 70%); top:-140px; right:-120px;}
-  .blob-2{width:420px;height:420px;background:radial-gradient(circle at 60% 40%, var(--moss), transparent 70%); bottom:-160px; left:-100px; animation-delay:-6s;}
-  html[dir="rtl"] .blob-1{right:auto; left:-120px;}
-  html[dir="rtl"] .blob-2{left:auto; right:-100px;}
-  @keyframes drift{
-    0%{transform:translate(0,0) scale(1);}
-    100%{transform:translate(30px,-20px) scale(1.06);}
-  }
-  html[dir="rtl"] .blob-1, html[dir="rtl"] .blob-2{animation-name:drift-rtl;}
-  @keyframes drift-rtl{
-    0%{transform:translate(0,0) scale(1);}
-    100%{transform:translate(-30px,-20px) scale(1.06);}
-  }
 
   .hero-inner{
     position:relative;
@@ -371,40 +350,6 @@
   }
   .btn-ghost:hover{border-color:var(--ink); transform:translateY(-3px);}
 
-  /* ================= HERO SCENE (decorative backdrop) ================= */
-  .hero-scene{
-    position:absolute;
-    inset:0;
-    z-index:0;
-    overflow:hidden;
-    pointer-events:none;
-  }
-  .hero-scene::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background-image:radial-gradient(rgba(28,23,18,0.07) 1.5px, transparent 1.5px);
-    background-size:28px 28px;
-    -webkit-mask-image:radial-gradient(ellipse 62% 55% at 50% 38%, #000 0%, transparent 72%);
-    mask-image:radial-gradient(ellipse 62% 55% at 50% 38%, #000 0%, transparent 72%);
-  }
-  .hero-ring{
-    position:absolute;
-    border-radius:50%;
-    border:1.5px solid var(--rust);
-    opacity:0.16;
-  }
-  .hero-ring-1{width:680px; height:680px; top:-220px; left:50%; transform:translateX(-50%);}
-  .hero-arc{
-    position:absolute;
-    left:50%;
-    bottom:-6%;
-    transform:translateX(-50%);
-    width:min(1400px, 160%);
-    color:var(--moss);
-    opacity:0.4;
-  }
-  .hero-arc path{fill:none; stroke:currentColor; stroke-width:1.4;}
   .scroll-cue{
     position:absolute;
     bottom:28px;left:50%;
@@ -1161,14 +1106,6 @@
 
   <!-- ================= HERO ================= -->
   <section class="hero">
-    <div class="hero-scene" aria-hidden="true">
-      <div class="hero-blob blob-1"></div>
-      <div class="hero-blob blob-2"></div>
-      <div class="hero-ring hero-ring-1"></div>
-      <svg class="hero-arc" viewBox="0 0 1400 200" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0,150 C 260,60 460,180 700,110 C 940,40 1140,170 1400,90"></path>
-      </svg>
-    </div>
     <div class="container hero-inner">
       <span class="eyebrow" data-i18n="hero.eyebrow">בקרוב</span>
       <!-- Wordmark intentionally stays "I do." in both languages — see note in <head>. -->
