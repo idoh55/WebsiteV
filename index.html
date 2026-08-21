@@ -28,14 +28,14 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Frank+Ruhl+Libre:wght@400;500;600;700;900&amp;family=Rubik:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=David+Libre:wght@400;500;600;700&amp;family=Rubik:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 
 <style>
   /* ============ DESIGN TOKENS ============
      Typography pairing (EN): Fraunces (warm, high-contrast serif) +
      Space Grotesk (geometric grotesque, Palantir-style precision).
      Typography pairing (HE, swapped via CSS variables when dir="rtl"):
-     Frank Ruhl Libre (elegant, warm Hebrew serif — same emotional role as
+     David Libre (classic Hebrew book serif — same emotional role as
      Fraunces) + Rubik (clean geometric Hebrew sans — same role as Space
      Grotesk). Both are Google Fonts with full Hebrew + Latin coverage.
   ========================================= */
@@ -67,7 +67,7 @@
   /* Hebrew font swap — driven purely by the dir attribute the language
      switcher toggles on <html>, so no separate class bookkeeping needed. */
   html[dir="rtl"]{
-    --font-serif: 'Frank Ruhl Libre', serif;
+    --font-serif: 'David Libre', serif;
     --font-sans: 'Rubik', sans-serif;
   }
 
