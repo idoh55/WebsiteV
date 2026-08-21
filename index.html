@@ -246,10 +246,12 @@
   .hero-inner{
     position:relative;
     z-index:2;
-    display:grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap:60px;
+    display:flex;
+    flex-direction:column;
     align-items:center;
+    text-align:center;
+    max-width:760px;
+    margin:0 auto;
   }
   .eyebrow{
     display:inline-flex;
@@ -286,7 +288,9 @@
     margin-top:26px;
     font-size:clamp(17px,2vw,20px);
     line-height:1.55;
-    max-width:460px;
+    max-width:520px;
+    margin-left:auto;
+    margin-right:auto;
     color:var(--ink-soft);
   }
   .hero-actions{
@@ -295,6 +299,7 @@
     gap:16px;
     flex-wrap:wrap;
     align-items:center;
+    justify-content:center;
   }
   .btn{
     font-family:var(--font-sans);
@@ -325,95 +330,40 @@
   }
   .btn-ghost:hover{border-color:var(--ink); transform:translateY(-3px);}
 
-  /* hero bag visual */
-  .hero-visual{
-    position:relative;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    perspective:1200px;
-  }
-  .bag{
-    position:relative;
-    width:230px;
-    height:320px;
-    transform:rotate(-4deg);
-    transition:transform .6s var(--ease);
-  }
-  html[dir="rtl"] .bag{transform:rotate(4deg);}
-  .hero-visual:hover .bag{transform:rotate(-1deg) translateY(-6px);}
-  html[dir="rtl"] .hero-visual:hover .bag{transform:rotate(1deg) translateY(-6px);}
-  .bag-body{
+  /* ================= HERO SCENE (decorative backdrop) ================= */
+  .hero-scene{
     position:absolute;
     inset:0;
-    border-radius:14px 14px 26px 26px;
-    background:linear-gradient(160deg, var(--espresso-2), var(--ink) 60%, var(--espresso));
-    box-shadow: 0 40px 60px -25px rgba(28,23,18,0.45), inset 0 0 0 1px rgba(255,255,255,0.04);
+    z-index:0;
+    overflow:hidden;
+    pointer-events:none;
   }
-  .bag-fold{
-    position:absolute;
-    top:0;left:0;right:0;
-    height:38px;
-    background:repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 3px, transparent 3px 14px);
-    border-radius:14px 14px 0 0;
-    border-bottom:1px solid rgba(255,255,255,0.08);
-  }
-  .bag-valve{
-    position:absolute;
-    top:64px;left:50%;
-    transform:translateX(-50%);
-    width:20px;height:20px;
-    border-radius:50%;
-    background:radial-gradient(circle at 35% 35%, #4a3a2c, #1a130d);
-    box-shadow:0 0 0 3px rgba(246,241,231,0.05);
-  }
-  .bag-label{
-    position:absolute;
-    left:16px;right:16px;top:110px;bottom:56px;
-    border-radius:10px;
-    background:linear-gradient(150deg, var(--rust), var(--rust-dark));
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    text-align:center;
-    padding:14px;
-  }
-  .bag-label .mark{
-    font-family:var(--font-serif);
-    font-style:italic;
-    font-size:26px;
-    color:var(--cream);
-  }
-  html[dir="rtl"] .bag-label .mark{font-style:normal;}
-  .bag-label .sub{
-    font-size:9.5px;
-    letter-spacing:0.18em;
-    text-transform:uppercase;
-    color:rgba(246,241,231,0.75);
-  }
-  html[dir="rtl"] .bag-label .sub{letter-spacing:0.03em;}
-  .bag-tag{
-    position:absolute;
-    right:-10px;
-    bottom:64px;
-    width:34px;height:52px;
-    background:var(--cream-2);
-    border-radius:4px;
-    box-shadow:0 8px 16px -8px rgba(0,0,0,0.35);
-    transform:rotate(8deg);
-  }
-  html[dir="rtl"] .bag-tag{right:auto; left:-10px; transform:rotate(-8deg);}
-  .bag-tag::before{
+  .hero-scene::before{
     content:"";
     position:absolute;
-    top:8px;left:50%;
-    transform:translateX(-50%);
-    width:6px;height:6px;
-    border-radius:50%;
-    background:var(--espresso);
+    inset:0;
+    background-image:radial-gradient(rgba(28,23,18,0.07) 1.5px, transparent 1.5px);
+    background-size:28px 28px;
+    -webkit-mask-image:radial-gradient(ellipse 62% 55% at 50% 38%, #000 0%, transparent 72%);
+    mask-image:radial-gradient(ellipse 62% 55% at 50% 38%, #000 0%, transparent 72%);
   }
+  .hero-ring{
+    position:absolute;
+    border-radius:50%;
+    border:1.5px solid var(--rust);
+    opacity:0.16;
+  }
+  .hero-ring-1{width:680px; height:680px; top:-220px; left:50%; transform:translateX(-50%);}
+  .hero-arc{
+    position:absolute;
+    left:50%;
+    bottom:-6%;
+    transform:translateX(-50%);
+    width:min(1400px, 160%);
+    color:var(--moss);
+    opacity:0.4;
+  }
+  .hero-arc path{fill:none; stroke:currentColor; stroke-width:1.4;}
   .scroll-cue{
     position:absolute;
     bottom:28px;left:50%;
@@ -1063,8 +1013,6 @@
 
   /* ================= RESPONSIVE ================= */
   @media (max-width: 920px){
-    .hero-inner{grid-template-columns:1fr; gap:70px;}
-    .hero-visual{order:-1;}
     .story-grid{grid-template-columns:1fr; gap:48px;}
     .bento{grid-template-columns:repeat(2,1fr); grid-auto-rows:180px;}
     .footer-top{grid-template-columns:1fr 1fr; row-gap:40px;}
@@ -1119,30 +1067,22 @@
 
   <!-- ================= HERO ================= -->
   <section class="hero">
-    <div class="hero-blob blob-1"></div>
-    <div class="hero-blob blob-2"></div>
+    <div class="hero-scene" aria-hidden="true">
+      <div class="hero-blob blob-1"></div>
+      <div class="hero-blob blob-2"></div>
+      <div class="hero-ring hero-ring-1"></div>
+      <svg class="hero-arc" viewBox="0 0 1400 200" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,150 C 260,60 460,180 700,110 C 940,40 1140,170 1400,90"></path>
+      </svg>
+    </div>
     <div class="container hero-inner">
-      <div style="position:relative">
-        <span class="eyebrow" data-i18n="hero.eyebrow">בקרוב</span>
-        <!-- Wordmark intentionally stays "I do." in both languages — see note in <head>. -->
-        <h1 style="font-family:var(--font-serif);font-weight:600;color:#1C1712">i do<span style="color:var(--rust)">.</span></h1>
-        <p class="hero-sub" data-i18n-html="hero.sub">בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.</p>
-        <div class="hero-actions">
-          <a href="#join" class="btn btn-primary" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
-          <a href="#story" class="btn btn-ghost" data-i18n="cta.readStory">הרקע</a>
-        </div>
-      </div>
-      <div class="hero-visual">
-        <div class="bag">
-          <div class="bag-body"></div>
-          <div class="bag-fold"></div>
-          <div class="bag-valve"></div>
-          <div class="bag-label">
-            <span class="mark">i do</span>
-            <span class="sub" data-i18n="bag.sub">מקור יחיד · 250 גרם</span>
-          </div>
-          <div class="bag-tag"></div>
-        </div>
+      <span class="eyebrow" data-i18n="hero.eyebrow">בקרוב</span>
+      <!-- Wordmark intentionally stays "I do." in both languages — see note in <head>. -->
+      <h1 style="font-family:var(--font-serif);font-weight:600;color:#1C1712">i do<span style="color:var(--rust)">.</span></h1>
+      <p class="hero-sub" data-i18n-html="hero.sub">בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.</p>
+      <div class="hero-actions">
+        <a href="#join" class="btn btn-primary" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
+        <a href="#story" class="btn btn-ghost" data-i18n="cta.readStory">הרקע</a>
       </div>
     </div>
     <div class="scroll-cue">
@@ -1318,7 +1258,6 @@
         "cta.readStory": "Read the story",
         "hero.eyebrow": "A new roastery — opening soon",
         "hero.sub": "A small-batch promise, roasted daily. Founder-led coffee, built from the first bean — no shortcuts, no committee, just Ido and a roaster.",
-        "bag.sub": "Single Origin · 250g",
         "scroll.label": "Scroll",
         "story.kicker": "Our story",
         "story.portraitCap": "Ido · Founder & Roaster",
@@ -1381,7 +1320,6 @@
         "cta.readStory": "הרקע",
         "hero.eyebrow": "בקרוב",
         "hero.sub": "בית קלייה קטן. כרגע קולים, טועמים, ומתכוננים לפתוח.",
-        "bag.sub": "מקור יחיד · 250 גרם",
         "scroll.label": "גללו",
         "story.kicker": "הסיפור",
         "story.portraitCap": "עידו · מייסד וקולה",
@@ -1506,23 +1444,6 @@
     document.querySelector('.waitlist-fine').style.display = 'none';
     success.classList.add('show');
   });
-
-  // Subtle parallax tilt on hero bag, following cursor (mirrors for RTL)
-  const bag = document.querySelector('.bag');
-  const heroVisual = document.querySelector('.hero-visual');
-  if (bag && heroVisual && window.matchMedia('(pointer:fine)').matches) {
-    heroVisual.addEventListener('mousemove', (e) => {
-      const rect = heroVisual.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      const base = document.documentElement.dir === 'rtl' ? 4 : -4;
-      const spin = document.documentElement.dir === 'rtl' ? -6 : 6;
-      bag.style.transform = `rotate(${base + x * spin}deg) translate(${x * 10}px, ${y * 10}px)`;
-    });
-    heroVisual.addEventListener('mouseleave', () => {
-      bag.style.transform = '';
-    });
-  }
 
   /* ============ OWNER CONTENT-EDIT MODE ============
      How it works: turning edit mode on makes every translated text node
