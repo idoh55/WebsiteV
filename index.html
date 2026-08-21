@@ -72,6 +72,10 @@
 
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
+  /* Suppresses transitions for one frame while dir flips (see setLang) so
+     elements whose resting position depends on dir — like the cart drawer —
+     don't visibly slide across the screen mid-toggle. */
+  html.dir-flip *{transition:none !important;}
   body{
     margin:0;
     background:var(--cream);
@@ -1458,6 +1462,13 @@
     if(!I18N[lang]) return;
     currentLang = lang;
     const dict = I18N[lang];
+
+    // See the .dir-flip rule: dir-dependent transforms (cart drawer, arrows)
+    // would otherwise transition through their old-dir resting position.
+    document.documentElement.classList.add('dir-flip');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      document.documentElement.classList.remove('dir-flip');
+    }));
 
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
