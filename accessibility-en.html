@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accessibility Statement — I do</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;600;700;900&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f6f1e7; --cream-2:#efe7d8; --ink:#1c1712; --ink-soft:#3a322a;
+    --rust:#D6455C; --rust-dark:#A8283D; --line:rgba(28,23,18,0.12);
+    --radius:22px; --ease:cubic-bezier(.16,.84,.44,1);
+    --font-serif:'Frank Ruhl Libre', serif; --font-sans:'Rubik', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;line-height:1.6;}
+  a{color:var(--rust-dark);text-decoration:underline;text-underline-offset:2px;}
+  .container{max-width:760px;margin:0 auto;padding:0 24px;}
+  header{padding:28px 0;border-bottom:1px solid var(--line);}
+  header .inner{display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:var(--font-serif);font-weight:600;font-size:22px;color:var(--ink);text-decoration:none;}
+  .logo .dot{color:var(--rust);}
+  .back-link{font-size:13.5px;font-weight:500;color:var(--ink-soft);text-decoration:none;display:flex;align-items:center;gap:6px;}
+  .back-link:hover{color:var(--rust-dark);}
+  .header-right{display:flex;align-items:center;gap:16px;}
+  .lang-switch-mini{display:flex;gap:6px;}
+  .lang-switch-mini a{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:100px;border:1.5px solid var(--line);color:var(--ink-soft);text-decoration:none;transition:background .2s,color .2s,border-color .2s;}
+  .lang-switch-mini a.active{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+  .lang-switch-mini a:not(.active):hover{border-color:var(--ink-soft);color:var(--ink);}
+  :focus-visible{outline:2px solid var(--rust-dark);outline-offset:2px;}
+  .skip-link{position:absolute;top:-100px;left:12px;z-index:100;background:var(--ink);color:var(--cream);padding:12px 20px;border-radius:10px;font-weight:600;font-size:14px;text-decoration:none;transition:top .2s var(--ease);}
+  .skip-link:focus{top:12px;}
+  main{padding:56px 0 100px;}
+  .placeholder-note{background:var(--cream-2);border:1px dashed var(--rust-dark);border-radius:12px;padding:16px 18px;font-size:13.5px;color:var(--ink-soft);margin:0 0 40px;}
+  .placeholder-note strong{color:var(--rust-dark);}
+  h1{font-family:var(--font-serif);font-weight:600;font-size:clamp(30px,5vw,42px);margin:0 0 8px;}
+  .updated{font-size:13px;color:var(--ink-soft);opacity:0.75;margin-bottom:40px;}
+  h2{font-family:var(--font-serif);font-weight:600;font-size:21px;margin:40px 0 12px;}
+  p{margin:0 0 14px;font-size:15px;}
+  ul, ol{margin:0 0 14px;padding-inline-start:22px;font-size:15px;}
+  li{margin-bottom:6px;}
+  .fill{background:rgba(214,69,92,0.12);padding:1px 6px;border-radius:4px;color:var(--rust-dark);font-weight:600;}
+  .status{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 20px;}
+  footer{border-top:1px solid var(--line);padding:32px 0;text-align:center;font-size:13px;color:var(--ink-soft);opacity:0.7;}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<header>
+  <div class="container inner">
+    <a href="index.html#top" class="logo">i do<span class="dot">.</span></a>
+    <div class="header-right">
+      <div class="lang-switch-mini">
+        <a href="accessibility.html" hreflang="he">עברית</a>
+        <a href="accessibility-en.html" class="active" aria-current="page">EN</a>
+      </div>
+      <a href="index.html" class="back-link">← Back to site</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div class="container">
+    <div class="placeholder-note">
+      <strong>An honest draft, not a full compliance declaration.</strong> Concrete technical accessibility improvements have been made to the site (detailed below), but a formal professional audit — including real testing with screen readers and other assistive technologies — has not yet been performed. This statement therefore does <em>not</em> claim full compliance with the standard, and instead describes the actual current state honestly. An inaccurate accessibility statement can be more legally problematic than the absence of one.
+    </div>
+
+    <h1>Accessibility Statement</h1>
+    <p class="updated">Last updated: August 2026</p>
+
+    <div class="status">
+      <p style="margin:0"><strong>Current status:</strong> The Site includes a number of concrete technical accessibility improvements (see section 2), but has not yet undergone a comprehensive, formal accessibility audit by a professional. We are committed to continuing to make the Site accessible in accordance with the law, and will update this statement as further testing is carried out.</p>
+    </div>
+
+    <h2>1. Our commitment</h2>
+    <p>At I do, we place great importance on making our services accessible to the general public, including people with disabilities, in accordance with the Equal Rights for Persons with Disabilities Law, 5758-1998, and the Equal Rights for Persons with Disabilities Regulations (Service Accessibility Adjustments), 5773-2013. Our accessibility target is compliance with Israeli Standard IS 5568, Level AA (based on WCAG 2.0).</p>
+
+    <h2>2. What's true today</h2>
+    <p>The Site has been through a focused round of technical accessibility improvements, and currently includes, among other things:</p>
+    <ul>
+      <li>A "skip to main content" link at the start of every page, for keyboard and assistive-technology users.</li>
+      <li>Full keyboard navigation: all core actions (opening product details, adding to cart, opening and closing the cart) work without a mouse, with a clear focus indicator on the active element.</li>
+      <li>Pop-up panels (product details, shopping cart) follow ARIA dialog conventions: focus is trapped inside the panel while it's open, moves into it automatically when it opens, and returns to the element that opened it when it closes. The Escape key closes both panels.</li>
+      <li>Support for the operating system's "reduce motion" preference (prefers-reduced-motion) — animations and transitions shrink to nearly nothing for anyone who has set it.</li>
+      <li>Text labels (aria-label) on every icon-only button (close, cart, change quantity, etc.), with decorative images/icons marked so screen readers skip over them.</li>
+      <li>A numeric color-contrast check (contrast ratio) was run against the main color pairings used across the Site against the standard's requirements, and one pairing found to be insufficient was corrected.</li>
+      <li>All of the Site's content, including the shopping cart, is available in both Hebrew and English.</li>
+    </ul>
+    <p>What hasn't been done yet: real-world testing with actual screen readers (such as NVDA, JAWS, VoiceOver) across every screen on the Site, testing against a wide range of assistive technologies, and review by an external accessibility professional. We see this as ongoing work we will continue.</p>
+
+    <h2>3. Running into a problem?</h2>
+    <p>If you encounter an accessibility issue on the Site, or would like to receive the information or service in an alternative way — please contact us, and we'll be glad to help personally:</p>
+    <p>
+      Email: <a href="mailto:hello@idocoffee.co">hello@idocoffee.co</a><br>
+      Phone: <span class="fill">to be filled in</span>
+    </p>
+
+    <h2>4. Accessibility coordinator</h2>
+    <p>Name: <span class="fill">to be filled in</span><br>Contact details: <span class="fill">to be filled in</span></p>
+  </div>
+</main>
+
+<footer>
+  <div class="container">© 2026 I do Coffee Roastery. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
