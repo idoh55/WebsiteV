@@ -4,46 +4,108 @@
 <meta charset="UTF-8">
 <title>ניהול חנות — I do</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=David+Libre:wght@500;600;700&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{ --ink:#1c1712; --cream:#faf6ef; --line:#e4dbcb; --rust:#c94f43; --moss:#5c6b4f; }
+  :root{
+    --cream:#f6f1e7; --cream-2:#efe7d8; --ink:#1c1712; --ink-soft:#3a322a;
+    --rust:#D6455C; --rust-dark:#A8283D; --caramel:#7d5329;
+    --moss: oklch(66% 0.12 165); --moss-dark: oklch(50% 0.11 165);
+    --ochre: oklch(72% 0.10 65);
+    --line: rgba(28,23,18,0.12);
+    --radius: 16px; --ease: cubic-bezier(.16,.84,.44,1);
+    --font-serif:'David Libre', serif; --font-sans:'Rubik', sans-serif;
+  }
   *{box-sizing:border-box;}
-  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--cream);color:var(--ink);margin:0;padding:0;}
-  header{padding:22px 32px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
-  header h1{font-size:20px;margin:0;}
-  header button{background:none;border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;}
-  main{max-width:1000px;margin:0 auto;padding:32px;}
-  .login-box{max-width:340px;margin:80px auto;display:flex;flex-direction:column;gap:12px;}
-  .login-box input{padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;}
-  .login-box button{padding:12px;border:none;border-radius:8px;background:var(--ink);color:var(--cream);font-weight:600;cursor:pointer;}
-  .tabs{display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--line);}
-  .tab{padding:10px 18px;cursor:pointer;font-weight:600;font-size:14px;color:#8a7f6f;border-bottom:2px solid transparent;}
+  body{font-family:var(--font-sans);background:var(--cream);color:var(--ink);margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+  :focus-visible{outline:2px solid var(--rust-dark); outline-offset:2px;}
+
+  /* ---------- login ---------- */
+  .login-box{max-width:340px;margin:120px auto;display:flex;flex-direction:column;gap:12px;}
+  .login-box h2{font-family:var(--font-serif);font-weight:600;text-align:center;margin:0 0 8px;font-size:24px;}
+  .login-box input{padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;}
+  .login-box input:focus{outline:none;border-color:var(--rust);}
+  .login-box button{padding:12px;border:none;border-radius:100px;background:var(--ink);color:var(--cream);font-weight:600;font-family:inherit;cursor:pointer;transition:background .2s var(--ease);}
+  .login-box button:hover{background:var(--rust);}
+  #status{font-size:13px;color:var(--rust-dark);margin-top:4px;text-align:center;}
+
+  /* ---------- shell ---------- */
+  header{padding:20px 32px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#fff;}
+  .brand{font-family:var(--font-serif);font-weight:600;font-size:19px;color:var(--ink);}
+  .brand .dot{color:var(--rust);padding:0 4px;}
+  main{max-width:1100px;margin:0 auto;padding:32px;}
+
+  .btn-ghost{background:none;border:1.5px solid var(--line);border-radius:100px;padding:9px 18px;cursor:pointer;font-size:13.5px;font-weight:600;font-family:inherit;color:var(--ink);transition:border-color .2s var(--ease), color .2s var(--ease);}
+  .btn-ghost:hover{border-color:var(--ink-soft);}
+  .btn-primary{padding:10px 18px;border-radius:100px;border:none;background:var(--ink);color:var(--cream);font-weight:600;font-family:inherit;cursor:pointer;transition:background .2s var(--ease), transform .2s var(--ease);}
+  .btn-primary:hover{background:var(--rust);}
+
+  /* ---------- dashboard stats ---------- */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
+  @media (max-width:720px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+  .stat-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+  .stat-num{font-family:var(--font-serif);font-weight:600;font-size:30px;color:var(--ink);line-height:1;}
+  .stat-card.stat-warn .stat-num{color:var(--rust-dark);}
+  .stat-label{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--line);}
+  .tab{padding:10px 18px;cursor:pointer;font-weight:600;font-size:14px;color:var(--ink-soft);border-bottom:2px solid transparent;background:none;border-top:none;border-inline:none;font-family:inherit;}
   .tab.active{color:var(--ink);border-color:var(--rust);}
-  table{width:100%;border-collapse:collapse;font-size:14px;}
-  th,td{text-align:right;padding:10px 8px;border-bottom:1px solid var(--line);}
-  th{color:#8a7f6f;font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;}
-  .stock-low{color:var(--rust);font-weight:700;}
-  .status-pill{padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600;display:inline-block;}
-  .status-paid{background:#e4ecdf;color:var(--moss);}
-  .status-pending, .status-pending_charge{background:#f5edd8;color:#9c7a1f;}
-  .status-failed{background:#f6dede;color:var(--rust);}
-  button.small{padding:5px 10px;font-size:12.5px;border-radius:6px;border:1px solid var(--line);background:#fff;cursor:pointer;}
-  button.small.danger{color:var(--rust);border-color:#eecccb;}
-  .product-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0;padding:20px;border:1px solid var(--line);border-radius:12px;background:#fff;}
-  .product-form label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:#8a7f6f;}
-  .product-form input, .product-form textarea{padding:9px 11px;border:1.5px solid var(--line);border-radius:7px;font-size:14px;font-family:inherit;}
+
+  /* ---------- toolbar ---------- */
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+  .toolbar input[type="search"], .toolbar select{padding:9px 14px;border:1.5px solid var(--line);border-radius:100px;font-size:13.5px;font-family:inherit;background:#fff;color:var(--ink);}
+  .toolbar input[type="search"]{flex:1;min-width:180px;}
+  .toolbar input[type="search"]:focus, .toolbar select:focus{outline:none;border-color:var(--rust);}
+  .toolbar .spacer{flex:1;}
+
+  /* ---------- table ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .table-wrap{overflow-x:auto;border-radius:var(--radius);}
+  th,td{text-align:right;padding:12px 10px;border-bottom:1px solid var(--line);}
+  th{color:var(--ink-soft);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;background:var(--cream-2);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(28,23,18,0.02);}
+  .stock-low{color:var(--rust-dark);font-weight:700;}
+  .status-pill{padding:3px 11px;border-radius:100px;font-size:11.5px;font-weight:600;display:inline-block;font-family:var(--font-sans);}
+  .status-paid{background:rgba(92,107,79,0.16);color:var(--moss-dark);}
+  .status-pending, .status-pending_charge{background:rgba(180,140,50,0.16);color:#8a6a1f;}
+  .status-failed{background:rgba(214,69,92,0.14);color:var(--rust-dark);}
+  .status-refunded{background:rgba(28,23,18,0.08);color:var(--ink-soft);}
+  button.small{padding:6px 12px;font-size:12px;border-radius:100px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-family:inherit;font-weight:600;color:var(--ink);}
+  button.small:hover{border-color:var(--ink-soft);}
+  button.small.danger{color:var(--rust-dark);border-color:rgba(214,69,92,0.3);}
+  button.small.danger:hover{border-color:var(--rust-dark);}
+  .items-summary{color:var(--ink-soft);font-size:12.5px;max-width:220px;}
+  .drag-handle{cursor:grab;color:var(--ink-soft);opacity:0.5;font-size:15px;width:24px;text-align:center;user-select:none;}
+  .drag-handle:hover{opacity:1;}
+  tr.dragging{opacity:0.4;}
+  tr.drag-over{box-shadow:inset 0 2px 0 var(--rust);}
+  select.status-select{padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);font-family:inherit;font-size:12.5px;background:#fff;color:var(--ink);}
+
+  /* ---------- product form ---------- */
+  .product-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 24px;padding:22px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;}
+  .product-form label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-soft);font-weight:500;}
+  .product-form input, .product-form textarea{padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;font-family:inherit;color:var(--ink);background:#fff;}
+  .product-form input:focus, .product-form textarea:focus{outline:none;border-color:var(--rust);}
   .product-form .full{grid-column:1/-1;}
+  .product-form .section-note{grid-column:1/-1;border-top:1px solid var(--line);margin-top:8px;padding-top:16px;font-size:12px;font-weight:600;color:var(--ink-soft);}
   .product-form .actions{grid-column:1/-1;display:flex;gap:10px;}
-  .product-form .actions button{padding:10px 18px;border-radius:8px;border:none;background:var(--ink);color:var(--cream);font-weight:600;cursor:pointer;}
-  .product-form .actions button.cancel{background:none;color:var(--ink);border:1px solid var(--line);}
-  .add-btn{margin-bottom:16px;padding:10px 16px;border-radius:8px;border:none;background:var(--ink);color:var(--cream);font-weight:600;cursor:pointer;}
-  #status{font-size:13px;color:var(--rust);margin-top:8px;}
+  .product-form .actions button.cancel{padding:10px 18px;border-radius:100px;background:none;color:var(--ink);border:1.5px solid var(--line);font-family:inherit;font-weight:600;cursor:pointer;}
+  .add-btn{padding:10px 18px;border-radius:100px;border:none;background:var(--ink);color:var(--cream);font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .add-btn:hover{background:var(--rust);}
+  #saveProductStatus{font-size:12.5px;color:var(--rust-dark);}
   .checkbox-row{display:flex;align-items:center;gap:8px;font-size:13.5px;flex-direction:row !important;}
+  .empty-note{padding:28px;text-align:center;color:var(--ink-soft);font-size:13.5px;}
 </style>
 </head>
 <body>
 
 <div id="loginScreen" class="login-box">
-  <h2 style="text-align:center;margin-bottom:8px;">כניסת מנהל</h2>
+  <h2>כניסת מנהל</h2>
   <input type="email" id="loginEmail" placeholder="אימייל">
   <input type="password" id="loginPassword" placeholder="סיסמה">
   <button id="loginBtn">כניסה</button>
@@ -52,29 +114,51 @@
 
 <div id="app" style="display:none;">
   <header>
-    <h1>ניהול חנות — I do</h1>
-    <button id="logoutBtn">התנתקות</button>
+    <div class="brand">i do <span class="dot">·</span> ניהול חנות</div>
+    <button id="logoutBtn" class="btn-ghost">התנתקות</button>
   </header>
   <main>
+    <div class="stats-row" id="statsRow"></div>
+
     <div class="tabs">
-      <div class="tab active" data-tab="products">מוצרים</div>
-      <div class="tab" data-tab="orders">הזמנות</div>
+      <button type="button" class="tab active" data-tab="products">מוצרים</button>
+      <button type="button" class="tab" data-tab="orders">הזמנות</button>
     </div>
 
     <section id="productsTab">
-      <button class="add-btn" id="addProductBtn">+ מוצר חדש</button>
+      <div class="toolbar">
+        <input type="search" id="productSearch" placeholder="חיפוש מוצר לפי שם…" aria-label="חיפוש מוצר">
+        <span class="spacer"></span>
+        <button class="add-btn" id="addProductBtn">+ מוצר חדש</button>
+      </div>
       <div id="productForm"></div>
-      <table>
-        <thead><tr><th>שם</th><th>מחיר</th><th>מלאי</th><th>פעיל</th><th>בקרוב</th><th></th></tr></thead>
-        <tbody id="productsBody"></tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>שם</th><th>מחיר</th><th>מלאי</th><th>פעיל</th><th>בקרוב</th><th></th></tr></thead>
+          <tbody id="productsBody"></tbody>
+        </table>
+      </div>
     </section>
 
     <section id="ordersTab" style="display:none;">
-      <table>
-        <thead><tr><th>תאריך</th><th>לקוח</th><th>טלפון</th><th>סכום</th><th>סטטוס</th><th>עדכון ידני</th></tr></thead>
-        <tbody id="ordersBody"></tbody>
-      </table>
+      <div class="toolbar">
+        <input type="search" id="orderSearch" placeholder="חיפוש לפי שם או טלפון…" aria-label="חיפוש הזמנה">
+        <select id="orderStatusFilter" aria-label="סינון לפי סטטוס">
+          <option value="">כל הסטטוסים</option>
+          <option value="pending">pending</option>
+          <option value="paid">paid</option>
+          <option value="failed">failed</option>
+          <option value="refunded">refunded</option>
+        </select>
+        <span class="spacer"></span>
+        <button class="btn-ghost" id="exportCsvBtn">ייצוא ל-CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>תאריך</th><th>לקוח</th><th>טלפון</th><th>פריטים</th><th>סכום</th><th>סטטוס</th><th>עדכון ידני</th></tr></thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
     </section>
   </main>
 </div>
@@ -118,6 +202,23 @@
     });
   });
 
+  // ---------- dashboard stats ----------
+  let productsCache = [];
+  let ordersCache = [];
+
+  function renderStats() {
+    const activeProducts = productsCache.filter(p => p.active !== false).length;
+    const lowStock = productsCache.filter(p => p.active !== false && !p.comingSoon && (p.stock ?? 0) <= 3).length;
+    const pendingOrders = ordersCache.filter(o => o.status === 'pending').length;
+    const revenue = ordersCache.filter(o => o.status === 'paid').reduce((s, o) => s + (o.amount || 0), 0);
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat-card"><div class="stat-num">${activeProducts}</div><div class="stat-label">מוצרים פעילים</div></div>
+      <div class="stat-card ${lowStock > 0 ? 'stat-warn' : ''}"><div class="stat-num">${lowStock}</div><div class="stat-label">מלאי נמוך (≤3)</div></div>
+      <div class="stat-card ${pendingOrders > 0 ? 'stat-warn' : ''}"><div class="stat-num">${pendingOrders}</div><div class="stat-label">הזמנות ממתינות</div></div>
+      <div class="stat-card"><div class="stat-num">${revenue.toLocaleString('he-IL')} ₪</div><div class="stat-label">הכנסות (שולמו)</div></div>
+    `;
+  }
+
   // ---------- products ----------
   let editingId = null;
   const formEl = document.getElementById('productForm');
@@ -132,12 +233,12 @@
         <label>סדר תצוגה <input id="f_order" type="number" value="${p.order ?? 0}"></label>
         <label class="full">תמונה (URL, כולל קישורי Google Drive)
           <input id="f_image" value="${p.image || ''}">
-          <img id="imagePreview" src="${p.image || ''}" style="max-width:160px;max-height:100px;border-radius:8px;margin-top:8px;${p.image ? '' : 'display:none;'}">
+          <img id="imagePreview" src="${p.image || ''}" style="max-width:160px;max-height:100px;border-radius:8px;margin-top:8px;${p.image ? '' : 'display:none;'}" alt="">
         </label>
-        <label class="full">תיאור קצר (מוצג על הריבוע בעמוד הראשי) <textarea id="f_note" rows="2">${p.note || ''}</textarea></label>
-        <label class="full">פרטים נוספים (מוצג רק כשלוחצים על הריבוע להרחבה — מקור, קלייה, טעימות וכו') <textarea id="f_details" rows="4">${p.details || ''}</textarea></label>
+        <label class="full">תיאור קצר (מוצג בשורה בעמוד הראשי) <textarea id="f_note" rows="2">${p.note || ''}</textarea></label>
+        <label class="full">פרטים נוספים (מוצג רק כשלוחצים על השורה להרחבה — מקור, קלייה, טעימות וכו') <textarea id="f_details" rows="4">${p.details || ''}</textarea></label>
         <label class="full">תג מיוחד (אופציונלי, למשל "מהדורה מוגבלת") <input id="f_badge" value="${p.badge || ''}"></label>
-        <div class="full" style="border-top:1px solid var(--line);margin-top:8px;padding-top:16px;font-size:12.5px;font-weight:600;color:#8a7f6f;">גרסה באנגלית (אופציונלי — מוצג כשהאתר במצב EN; ריק = יוצג הטקסט העברי)</div>
+        <div class="section-note">גרסה באנגלית (אופציונלי — מוצג כשהאתר במצב EN; ריק = יוצג הטקסט העברי)</div>
         <label>Name (EN) <input id="f_name_en" value="${p.name_en || ''}"></label>
         <label>Tag (EN) <input id="f_tag_en" value="${p.tag_en || ''}"></label>
         <label class="full">Short description (EN) <textarea id="f_note_en" rows="2">${p.note_en || ''}</textarea></label>
@@ -146,10 +247,10 @@
         <div class="full checkbox-row"><input type="checkbox" id="f_active" ${p.active !== false ? 'checked' : ''}> <span>פעיל באתר</span></div>
         <div class="full checkbox-row"><input type="checkbox" id="f_comingSoon" ${p.comingSoon ? 'checked' : ''}> <span>בקרוב (ללא כפתור רכישה)</span></div>
         <div class="actions">
-          <button id="saveProductBtn">שמירה</button>
+          <button type="button" class="btn-primary" id="saveProductBtn">שמירה</button>
           <button type="button" class="cancel" id="cancelProductBtn">ביטול</button>
         </div>
-        <div class="full" id="saveProductStatus" style="font-size:12.5px;color:var(--rust);"></div>
+        <div class="full" id="saveProductStatus"></div>
       </div>`;
     document.getElementById('saveProductBtn').addEventListener('click', saveProduct);
     document.getElementById('cancelProductBtn').addEventListener('click', () => { formEl.innerHTML = ''; editingId = null; });
@@ -206,65 +307,161 @@
     }
   }
 
-  async function loadProducts() {
+  let productSearchTerm = '';
+  document.getElementById('productSearch').addEventListener('input', (e) => {
+    productSearchTerm = e.target.value.trim().toLowerCase();
+    renderProductsTable();
+  });
+
+  let dragSrcId = null;
+
+  function renderProductsTable() {
     const body = document.getElementById('productsBody');
-    const snap = await getDocs(query(collection(db, 'products'), orderBy('order', 'asc')));
-    body.innerHTML = '';
-    snap.forEach(d => {
-      const p = d.data();
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
+    const filtered = productsCache.filter(p => {
+      if (!productSearchTerm) return true;
+      return (p.name || '').toLowerCase().includes(productSearchTerm) ||
+             (p.name_en || '').toLowerCase().includes(productSearchTerm);
+    });
+    if (filtered.length === 0) {
+      body.innerHTML = `<tr><td colspan="7" class="empty-note">${productSearchTerm ? 'לא נמצאו מוצרים תואמים.' : 'אין עדיין מוצרים — לחצו על "מוצר חדש".'}</td></tr>`;
+      return;
+    }
+    body.innerHTML = filtered.map(p => `
+      <tr draggable="${productSearchTerm ? 'false' : 'true'}" data-id="${p.id}">
+        <td class="drag-handle" title="גררו לשינוי סדר">${productSearchTerm ? '' : '⠿'}</td>
         <td>${p.name}</td>
         <td>${p.price} ₪</td>
         <td class="${(p.stock ?? 0) <= 3 ? 'stock-low' : ''}">${p.stock ?? 0}</td>
         <td>${p.active !== false ? 'כן' : 'לא'}</td>
         <td>${p.comingSoon ? 'כן' : '—'}</td>
         <td style="display:flex;gap:6px;">
-          <button class="small" data-edit="${d.id}">עריכה</button>
-          <button class="small danger" data-del="${d.id}">מחיקה</button>
-        </td>`;
-      body.appendChild(tr);
-    });
-    body.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', async () => {
+          <button type="button" class="small" data-edit="${p.id}">עריכה</button>
+          <button type="button" class="small danger" data-del="${p.id}">מחיקה</button>
+        </td>
+      </tr>`).join('');
+
+    body.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', () => {
       editingId = btn.dataset.edit;
-      const snap2 = await getDocs(query(collection(db, 'products'), orderBy('order', 'asc')));
-      const found = snap2.docs.find(d => d.id === editingId);
-      renderForm(found.data());
+      const found = productsCache.find(p => p.id === editingId);
+      renderForm(found);
     }));
     body.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => {
       if (confirm('למחוק מוצר זה?')) { await deleteDoc(doc(db, 'products', btn.dataset.del)); loadProducts(); }
     }));
+
+    // Drag-to-reorder (disabled while a search filter is active, since the
+    // visible order wouldn't match the real underlying order values).
+    if (!productSearchTerm) {
+      body.querySelectorAll('tr[draggable="true"]').forEach(tr => {
+        tr.addEventListener('dragstart', () => { dragSrcId = tr.dataset.id; tr.classList.add('dragging'); });
+        tr.addEventListener('dragend', () => { tr.classList.remove('dragging'); body.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over')); });
+        tr.addEventListener('dragover', (e) => { e.preventDefault(); if (tr.dataset.id !== dragSrcId) tr.classList.add('drag-over'); });
+        tr.addEventListener('dragleave', () => tr.classList.remove('drag-over'));
+        tr.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          tr.classList.remove('drag-over');
+          const targetId = tr.dataset.id;
+          if (!dragSrcId || dragSrcId === targetId) return;
+          const srcIdx = productsCache.findIndex(p => p.id === dragSrcId);
+          const targetIdx = productsCache.findIndex(p => p.id === targetId);
+          if (srcIdx === -1 || targetIdx === -1) return;
+          const [moved] = productsCache.splice(srcIdx, 1);
+          productsCache.splice(targetIdx, 0, moved);
+          renderProductsTable();
+          await Promise.all(productsCache.map((p, i) => updateDoc(doc(db, 'products', p.id), { order: i })));
+          productsCache.forEach((p, i) => { p.order = i; });
+        });
+      });
+    }
+  }
+
+  async function loadProducts() {
+    const snap = await getDocs(query(collection(db, 'products'), orderBy('order', 'asc')));
+    productsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderProductsTable();
+    renderStats();
   }
 
   // ---------- orders (read + manual status override) ----------
-  async function loadOrders() {
+  let orderSearchTerm = '';
+  let orderStatusFilterVal = '';
+  document.getElementById('orderSearch').addEventListener('input', (e) => {
+    orderSearchTerm = e.target.value.trim().toLowerCase();
+    renderOrdersTable();
+  });
+  document.getElementById('orderStatusFilter').addEventListener('change', (e) => {
+    orderStatusFilterVal = e.target.value;
+    renderOrdersTable();
+  });
+  document.getElementById('exportCsvBtn').addEventListener('click', exportOrdersCsv);
+
+  function itemsSummary(items) {
+    if (!items || !items.length) return '—';
+    return items.map(i => `${i.name} ×${i.qty}`).join(', ');
+  }
+
+  function renderOrdersTable() {
     const body = document.getElementById('ordersBody');
-    const snap = await getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc')));
-    body.innerHTML = '';
-    snap.forEach(d => {
-      const o = d.data();
-      const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('he-IL') : '—';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${date}</td>
+    const filtered = ordersCache.filter(o => {
+      if (orderStatusFilterVal && o.status !== orderStatusFilterVal) return false;
+      if (!orderSearchTerm) return true;
+      return (o.fullName || '').toLowerCase().includes(orderSearchTerm) || (o.phone || '').includes(orderSearchTerm);
+    });
+    if (filtered.length === 0) {
+      body.innerHTML = `<tr><td colspan="7" class="empty-note">לא נמצאו הזמנות תואמות.</td></tr>`;
+      return;
+    }
+    body.innerHTML = filtered.map(o => `
+      <tr>
+        <td>${o.dateStr}</td>
         <td>${o.fullName || '—'}</td>
         <td>${o.phone || '—'}</td>
+        <td class="items-summary">${itemsSummary(o.items)}</td>
         <td>${o.amount} ₪</td>
         <td><span class="status-pill status-${o.status}">${o.status}</span></td>
         <td>
-          <select data-order="${d.id}">
+          <select class="status-select" data-order="${o.id}">
             <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>pending</option>
             <option value="paid" ${o.status === 'paid' ? 'selected' : ''}>paid</option>
             <option value="failed" ${o.status === 'failed' ? 'selected' : ''}>failed</option>
             <option value="refunded" ${o.status === 'refunded' ? 'selected' : ''}>refunded</option>
           </select>
-        </td>`;
-      body.appendChild(tr);
-    });
+        </td>
+      </tr>`).join('');
     body.querySelectorAll('[data-order]').forEach(sel => sel.addEventListener('change', async () => {
       await updateDoc(doc(db, 'orders', sel.dataset.order), { status: sel.value });
       loadOrders();
     }));
+  }
+
+  function exportOrdersCsv() {
+    const rows = [['תאריך', 'לקוח', 'טלפון', 'פריטים', 'סכום', 'סטטוס']];
+    const filtered = ordersCache.filter(o => {
+      if (orderStatusFilterVal && o.status !== orderStatusFilterVal) return false;
+      if (!orderSearchTerm) return true;
+      return (o.fullName || '').toLowerCase().includes(orderSearchTerm) || (o.phone || '').includes(orderSearchTerm);
+    });
+    filtered.forEach(o => rows.push([o.dateStr, o.fullName || '', o.phone || '', itemsSummary(o.items), o.amount, o.status]));
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async function loadOrders() {
+    const snap = await getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc')));
+    ordersCache = snap.docs.map(d => {
+      const o = d.data();
+      return { id: d.id, ...o, dateStr: o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('he-IL') : '—' };
+    });
+    renderOrdersTable();
+    renderStats();
   }
 </script>
 </body>
