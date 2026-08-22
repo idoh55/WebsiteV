@@ -527,11 +527,11 @@
       }
     }));
     body.querySelectorAll('[data-archive]').forEach(btn => btn.addEventListener('click', async () => {
-      await updateDoc(doc(db, 'orders', btn.dataset.archive), { archived: true });
+      await finishOrder(btn.dataset.archive);
       loadOrders();
     }));
     body.querySelectorAll('[data-unarchive]').forEach(btn => btn.addEventListener('click', async () => {
-      await updateDoc(doc(db, 'orders', btn.dataset.unarchive), { archived: false });
+      await unfinishOrder(btn.dataset.unarchive);
       loadOrders();
     }));
     body.querySelectorAll('[data-del-order]').forEach(btn => btn.addEventListener('click', async () => {
@@ -542,21 +542,22 @@
     }));
   }
 
-  // Marking an order "paid" is the manual replacement for what the old
-  // CardCom webhook did automatically: decrement stock for each item, but
-  // only once per order (guarded by stockDecremented) so flipping the
-  // status back and forth (e.g. paid -> refunded -> paid) can't double-count.
   async function setOrderStatus(orderId, newStatus) {
+    await updateDoc(doc(db, 'orders', orderId), { status: newStatus });
+  }
+
+  // "סיום" (finish) is what actually consumes inventory — it's the signal
+  // that the order is fully handled, not the payment-status dropdown.
+  // Decrements stock for each item, but only the first time per order
+  // (guarded by stockDecremented) so re-finishing after an unfinish can't
+  // double-count.
+  async function finishOrder(orderId) {
     const orderRef = doc(db, 'orders', orderId);
-    if (newStatus !== 'paid') {
-      await updateDoc(orderRef, { status: newStatus });
-      return;
-    }
     await runTransaction(db, async (tx) => {
       const orderSnap = await tx.get(orderRef);
       if (!orderSnap.exists()) return;
       const order = orderSnap.data();
-      const updates = { status: newStatus };
+      const updates = { archived: true };
       if (!order.stockDecremented && order.items?.length) {
         const productRefs = order.items.map(i => doc(db, 'products', i.id));
         const productSnaps = await Promise.all(productRefs.map(ref => tx.get(ref)));
@@ -566,6 +567,29 @@
           tx.update(productRefs[idx], { stock: Math.max(0, stock) });
         });
         updates.stockDecremented = true;
+      }
+      tx.update(orderRef, updates);
+    });
+  }
+
+  // Moving an order back to Active restores whatever stock finishOrder
+  // took out, so finish -> unfinish -> finish again doesn't lose track of
+  // inventory.
+  async function unfinishOrder(orderId) {
+    const orderRef = doc(db, 'orders', orderId);
+    await runTransaction(db, async (tx) => {
+      const orderSnap = await tx.get(orderRef);
+      if (!orderSnap.exists()) return;
+      const order = orderSnap.data();
+      const updates = { archived: false };
+      if (order.stockDecremented && order.items?.length) {
+        const productRefs = order.items.map(i => doc(db, 'products', i.id));
+        const productSnaps = await Promise.all(productRefs.map(ref => tx.get(ref)));
+        productSnaps.forEach((snap, idx) => {
+          if (!snap.exists()) return;
+          tx.update(productRefs[idx], { stock: (snap.data().stock ?? 0) + order.items[idx].qty });
+        });
+        updates.stockDecremented = false;
       }
       tx.update(orderRef, updates);
     });
