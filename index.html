@@ -418,24 +418,20 @@
     position:relative;
     aspect-ratio: 4/5;
     border-radius:var(--radius);
-    background:
-      radial-gradient(circle at 30% 20%, rgba(255,255,255,0.5), transparent 45%),
-      linear-gradient(150deg, #e4d7bd, #cbb27f 55%, #a9875a);
+    background:var(--espresso);
     display:flex;
     align-items:flex-end;
     padding:26px;
     overflow:hidden;
   }
-  .story-portrait::after{
-    content:"";
+  .story-portrait img{
     position:absolute;
     inset:0;
-    background-image:
-      repeating-linear-gradient(115deg, rgba(28,23,18,0.06) 0 2px, transparent 2px 26px);
-  }
-  html[dir="rtl"] .story-portrait::after{
-    background-image:
-      repeating-linear-gradient(65deg, rgba(28,23,18,0.06) 0 2px, transparent 2px 26px);
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    z-index:0;
   }
   .story-portrait .cap{
     position:relative;
@@ -1130,7 +1126,8 @@
     <div class="container story-grid">
       <div class="reveal is-visible">
         <div class="story-portrait">
-          <span class="cap" data-i18n="story.portraitCap">עידו · מייסד וקולה</span>
+          <img src="assets/IMG_0077.png" alt="" data-i18n-alt="story.portraitAlt">
+          <span class="cap" data-i18n="story.portraitCap">Bullet R2 Pro · הקולה שלנו</span>
         </div>
       </div>
       <div class="story-copy reveal is-visible">
@@ -1288,7 +1285,8 @@
         "hero.sub": "A small-batch promise, roasted daily. Founder-led coffee, built from the first bean — no shortcuts, no committee, just Ido and a roaster.",
         "scroll.label": "Scroll",
         "story.kicker": "Our story",
-        "story.portraitCap": "Ido · Founder & Roaster",
+        "story.portraitCap": "Bullet R2 Pro · Our roaster",
+        "story.portraitAlt": "The Bullet R2 Pro roasting machine",
         "story.p1": "This started as a question I couldn't stop asking: why does “fine” coffee have to mean boring coffee?",
         "story.p2": "I do is a coffee roastery just getting started — one person, one small roaster, and an unreasonable amount of care per batch. No investors, no supply-chain shortcuts, no roast profile we haven't tasted ourselves a dozen times over.",
         "story.p3": "Every bag is roasted in small runs, cupped before it ships, and packed by hand. The name is a promise as much as it is a pun — a commitment to doing this properly, one harvest at a time.",
@@ -1370,7 +1368,8 @@
         "hero.sub": "בית קלייה קטן. קולים, טועמים, ומתכוננים לפתוח.",
         "scroll.label": "גללו",
         "story.kicker": "הסיפור",
-        "story.portraitCap": "עידו · מייסד וקולה",
+        "story.portraitCap": "Bullet R2 Pro · הקולה שלנו",
+        "story.portraitAlt": "מכונת הקלייה Bullet R2 Pro",
         "story.p1": "הסיפור",
         "story.p2": "I do הוא בית קלייה יוצא לדרך — בן אדם אחד, קולה קטן ומדויק, ותשומת לב גדולה לכל שקית.",
         "story.p3": "הקפה שלנו נקלה בדיוק רב, עובר טעימה לפני שהוא יוצא מהדלת, ונארז ביד. משמעות השם של בית הקלייה היא המחויבות לקפה.",
@@ -1468,6 +1467,10 @@
     document.querySelectorAll('[data-i18n-href]').forEach(el => {
       const key = el.getAttribute('data-i18n-href');
       if (dict[key] !== undefined) el.setAttribute('href', dict[key]);
+    });
+    document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+      const key = el.getAttribute('data-i18n-alt');
+      if (dict[key] !== undefined) el.setAttribute('alt', dict[key]);
     });
     document.querySelectorAll('.lang-opt').forEach(el => {
       const active = el.getAttribute('data-lang') === lang;
