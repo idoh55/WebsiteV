@@ -895,133 +895,6 @@
   }
   .footer-socials a:hover{color:var(--rust);}
 
-  /* ================= OWNER EDIT MODE =================
-     A lightweight, client-side content editor for the site owner — click
-     any text to edit it in place, then export a ready-to-use updated
-     index.html. No backend, no database: the exported file simply has
-     the new text baked in as the new defaults. See the JS section for
-     how the export works. Remove or gate the entry button behind a
-     query param (e.g. ?edit=1) before the site goes fully public. */
-  .edit-entry-btn{
-    position:fixed;
-    bottom:22px;
-    inset-inline-end:22px;
-    z-index:300;
-    width:48px;height:48px;
-    border-radius:50%;
-    background:var(--ink);
-    color:var(--cream);
-    border:none;
-    font-size:18px;
-    cursor:pointer;
-    box-shadow:0 12px 26px -10px rgba(28,23,18,0.5);
-    transition:transform .3s var(--ease), background .3s var(--ease);
-  }
-  .edit-entry-btn:hover{background:var(--rust); transform:translateY(-3px) scale(1.05);}
-
-  body.i18n-editing [data-i18n],
-  body.i18n-editing [data-i18n-html],
-  body.i18n-editing .edit-placeholder-proxy{
-    outline:1.5px dashed rgba(214,69,92,0.55);
-    outline-offset:3px;
-    border-radius:4px;
-    cursor:text;
-    transition:background .2s var(--ease), outline-color .2s var(--ease);
-  }
-  body.i18n-editing [data-i18n]:hover,
-  body.i18n-editing [data-i18n-html]:hover,
-  body.i18n-editing .edit-placeholder-proxy:hover{
-    background:rgba(214,69,92,0.08);
-  }
-  body.i18n-editing [data-i18n]:focus,
-  body.i18n-editing [data-i18n-html]:focus,
-  body.i18n-editing .edit-placeholder-proxy:focus{
-    outline:1.5px solid var(--rust);
-    background:rgba(214,69,92,0.1);
-  }
-
-  .edit-toolbar{
-    position:fixed;
-    left:0; right:0; bottom:0;
-    z-index:400;
-    display:none;
-    background:var(--ink);
-    color:var(--cream);
-    padding:16px 24px;
-    box-shadow:0 -12px 30px -10px rgba(0,0,0,0.35);
-  }
-  .edit-toolbar.show{display:flex;}
-  .edit-toolbar-inner{
-    width:100%;
-    max-width:1180px;
-    margin:0 auto;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:14px;
-  }
-  .edit-toolbar-label{
-    font-size:13px;
-    font-weight:600;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .edit-toolbar-label .dot{
-    width:8px;height:8px;border-radius:50%;
-    background:var(--rust);
-    animation:pulse-line 1.8s ease-in-out infinite;
-  }
-  .edit-toolbar-fields{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-    font-size:13px;
-  }
-  .edit-toolbar-fields label{opacity:0.7; margin-inline-end:2px;}
-  .edit-placeholder-proxy{
-    background:rgba(246,241,231,0.08);
-    border:1px solid rgba(246,241,231,0.18);
-    padding:6px 10px;
-    border-radius:8px;
-    min-width:140px;
-    color:var(--cream);
-  }
-  .edit-toolbar-actions{display:flex; gap:10px;}
-  .edit-toolbar button{
-    font-family:var(--font-sans);
-    font-size:13px;
-    font-weight:600;
-    padding:10px 18px;
-    border-radius:100px;
-    border:none;
-    cursor:pointer;
-    transition:transform .25s var(--ease), background .25s var(--ease);
-  }
-  .edit-toolbar .btn-export{background:var(--rust); color:var(--cream);}
-  .edit-toolbar .btn-export:hover{background:#E06478; transform:translateY(-2px);}
-  .edit-toolbar .btn-exit{background:transparent; color:var(--cream); border:1.5px solid rgba(246,241,231,0.3);}
-  .edit-toolbar .btn-exit:hover{border-color:var(--cream);}
-  .edit-toast{
-    position:fixed;
-    bottom:92px;
-    left:50%;
-    transform:translateX(-50%) translateY(10px);
-    z-index:500;
-    background:var(--rust);
-    color:var(--cream);
-    padding:12px 22px;
-    border-radius:100px;
-    font-size:13.5px;
-    font-weight:600;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .35s var(--ease), transform .35s var(--ease);
-  }
-  .edit-toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-
   /* ================= RESPONSIVE ================= */
   @media (max-width: 920px){
     .story-grid{grid-template-columns:1fr; gap:48px;}
@@ -1047,10 +920,6 @@
     .waitlist-count{gap:32px;}
     .nav-right{gap:10px;}
     .nav-cta{display:none;}
-    .edit-toolbar-inner{flex-direction:column; align-items:stretch;}
-    .edit-toolbar-fields{order:2;}
-    .edit-toolbar-actions{order:3; justify-content:stretch;}
-    .edit-toolbar-actions button{flex:1;}
   }
 </style>
 </head>
@@ -1069,8 +938,8 @@
       </div>
       <div class="nav-right">
         <div class="lang-switch" role="group" aria-label="Language / שפה">
-          <button type="button" class="lang-opt" data-lang="en" onclick="switchLang('en')">EN</button>
-          <button type="button" class="lang-opt active" data-lang="he" onclick="switchLang('he')">עברית</button>
+          <button type="button" class="lang-opt" data-lang="en" onclick="setLang('en')">EN</button>
+          <button type="button" class="lang-opt active" data-lang="he" onclick="setLang('he')">עברית</button>
         </div>
         <a href="#join" class="nav-cta" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
         <button type="button" id="cartToggle" aria-label="עגלת קניות" style="position:relative;background:none;border:1.5px solid var(--line);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer">
@@ -1245,20 +1114,9 @@
   </div>
 </footer>
 
-<!-- ============ OWNER CONTENT-EDIT MODE ============
-     Small self-service editor: click the pencil, click any text on the
-     page to edit it, then export an updated file. Nothing is sent
-     anywhere — the export is generated entirely in the browser. Remove
-     this block (and the matching CSS/JS) once the site is publicly live
-     and copy is finalized, or gate the entry button behind a URL flag. -->
-
-
-
-
 
 <script>
   /* ============ i18n dictionary ============ */
-  /* I18N_DATA_START */
   const I18N = {
     "en": {
         "__title": "I do — Coffee Roastery",
@@ -1298,20 +1156,6 @@
         "badge.soon": "Soon",
         "badge.progress": "Design in progress",
         "badge.limited": "Limited edition",
-        "card1.tag": "Single Origin · South America",
-        "card1.title": "Crowd Favorite",
-        "card1.note": "dark chocolate · hazelnut · caramel — round, sweet, and easy to love from the first cup.",
-        "card2.tag": "Washed · Guji, Ethiopia",
-        "card2.title": "Washed Guji",
-        "card2.note": "peach · jasmine · honey — interesting without going wild; gentle enough for milk drinks, espresso, and filter alike.",
-        "card3.tag": "Co-ferment · Apple",
-        "card3.title": "Apple",
-        "card3.note": "Coffee where, during processing at the fermentation stage, the grower added apples that fermented together with the coffee to create an extraordinary flavor. A small edition, recommended for anyone chasing a special coffee experience and open to trying something new and interesting.",
-        "card4.tag": "Subscription",
-        "card4.title": "Monthly Bag",
-        "card4.note": "you choose which bag arrives each month — a standing discount, early access to limited drops, and full flexibility to skip or cancel anytime.",
-        "card5.tag": "Merch · Goods",
-        "card5.title": "T-Shirt",
         "showcase.note": "Photos and full details are still on the way — the list will update as each roast is ready.",
         "waitlist.kicker": "Coming soon",
         "waitlist.h2": "Say <span class=\"italic\">I do</span><br>to early access.",
@@ -1381,20 +1225,6 @@
         "badge.soon": "בקרוב",
         "badge.progress": "בתהליך עיצוב",
         "badge.limited": "מהדורה מוגבלת",
-        "card1.tag": "נטורל · דרום אמריקה",
-        "card1.title": "קרמו דה מינאס",
-        "card1.note": "שוקולד מריר · אגוזי לוז · קרמל — עגולה, מתוקה, וקלה לאהבה כבר מהכוס הראשונה.",
-        "card2.tag": "שטוף · גוג'י, אתיופיה",
-        "card2.title": "גוג'י שטוף",
-        "card2.note": "אפרסק · יסמין · דבש — קפה מעניין ועם זאת לא פרוע, עדין ונעים למשקאות חלב, אספרסו ופילטר כאחד.",
-        "card3.tag": "קופרמנטציה · תפוח",
-        "card3.title": "תפוח",
-        "card3.note": "קפה שבמהלך עיבודו, בשלב התסיסה של הקפה, הוסיף המגדל תפוחים שהותססו יחד עם הקפה כדי ליצור טעם מדויק. מהדורה קטנה, מומלצת למחפשי חוויית קפה מיוחדת ולכל מי שפתוח לנסות משהו חדש ומעניין.",
-        "card4.tag": "מנוי",
-        "card4.title": "שקית חודשית",
-        "card4.note": "אתם בוחרים איזו שקית מגיעה כל חודש — הנחה קבועה, גישה מוקדמת למהדורות מוגבלות, וגמישות מלאה לדלג או לבטל מתי שבא לכם.",
-        "card5.tag": "מרצ' ומוצרים",
-        "card5.title": "חולצה",
         "showcase.note": "תמונות ופרטים מלאים עוד בדרך — הרשימה תתעדכן בהתאם.",
         "waitlist.kicker": "בקרוב",
         "waitlist.h2": "למצטרפים אליי לדרך",
@@ -1427,7 +1257,6 @@
         "footer.copyright": "© 2026 I do Coffee Roastery. כל הזכויות שמורות."
     }
 };
-  /* I18N_DATA_END */
 
   let currentLang = 'he';
 
@@ -1535,20 +1364,9 @@
     }
   });
 
-  /* ============ OWNER CONTENT-EDIT MODE ============
-     How it works: turning edit mode on makes every translated text node
-     contenteditable. "Export updated file" commits whatever is currently
-     on screen back into the I18N object for the active language, then
-     downloads a full new index.html with that object baked in as the
-     new defaults — so the exported file works standalone, no round trip
-     through Claude needed for plain wording tweaks. Nothing is uploaded
-     anywhere; the export happens entirely in the browser. */
-  let editMode = false;
-
   /* ============ cart + CardCom checkout ============ */
   const CART_KEY = 'idoCart';
   const CHECKOUT_ENDPOINT = '/api/create-cardcom-payment'; // deploy the serverless function and set your real URL here
-  const swatches = { cremo:'linear-gradient(155deg,#2c1f17,#1c1712 60%,#120d09)', guji:'linear-gradient(155deg,var(--rust),var(--rust-dark))', tapuach:'linear-gradient(155deg,var(--moss),var(--moss-dark))', shirt:'linear-gradient(155deg,var(--ochre-light),var(--ochre))' };
   function getCart(){ try{ return JSON.parse(localStorage.getItem(CART_KEY)) || []; }catch(e){ return []; } }
   function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCart(); }
   function addToCart(id, name, price, image){
@@ -1584,7 +1402,7 @@
     } else {
       itemsEl.innerHTML = cart.map(i => `
         <div class="cart-item">
-          <div class="swatch" style="background:${i.image ? `url('${i.image}') center/cover` : (swatches[i.id] || 'var(--ink)')}">${i.image ? '' : 'i'}</div>
+          <div class="swatch" style="background:${i.image ? `url('${i.image}') center/cover` : 'var(--ink)'}">${i.image ? '' : 'i'}</div>
           <div class="info">
             <div class="name">${i.name}</div>
             <div class="qty-controls">
@@ -1727,113 +1545,6 @@
     });
   });
 
-  function switchLang(lang){
-    if (editMode) commitEdits(currentLang);
-    setLang(lang);
-    if (editMode) syncPlaceholderProxy();
-  }
-
-  function syncPlaceholderProxy(){
-    const proxy = document.getElementById('editEmailPlaceholder');
-    const input = document.getElementById('waitlistEmail');
-    if (proxy && input) proxy.textContent = input.getAttribute('placeholder') || '';
-  }
-
-  function commitEdits(lang){
-    if (!I18N[lang]) return;
-    const dict = I18N[lang];
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      dict[key] = el.textContent.trim();
-    });
-    document.querySelectorAll('[data-i18n-html]').forEach(el => {
-      const key = el.getAttribute('data-i18n-html');
-      dict[key] = el.innerHTML.trim();
-    });
-    const proxy = document.getElementById('editEmailPlaceholder');
-    if (proxy) {
-      dict['waitlist.emailPlaceholder'] = proxy.textContent.trim();
-      const input = document.getElementById('waitlistEmail');
-      if (input) input.setAttribute('placeholder', dict['waitlist.emailPlaceholder']);
-    }
-  }
-
-  function toggleEditMode(){
-    editMode = !editMode;
-    document.body.classList.toggle('i18n-editing', editMode);
-    document.getElementById('editToolbar').classList.toggle('show', editMode);
-
-    document.querySelectorAll('[data-i18n], [data-i18n-html]').forEach(el => {
-      el.setAttribute('contenteditable', editMode ? 'true' : 'false');
-    });
-
-    if (editMode) {
-      syncPlaceholderProxy();
-      showEditToast('מצב עריכה פעיל — לחצו על טקסט כדי לערוך, ואז ייצוא כדי לשמור לקובץ.');
-    } else {
-      commitEdits(currentLang);
-    }
-  }
-
-  function showEditToast(msg){
-    const toast = document.getElementById('editToast');
-    if (!toast) return;
-    toast.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(showEditToast._t);
-    showEditToast._t = setTimeout(() => toast.classList.remove('show'), 3200);
-  }
-
-  function serializeI18N(){
-    // Pretty-print the I18N object as valid JS (JSON is valid JS object
-    // literal syntax when every key is quoted, which ours already are).
-    return 'const I18N = ' + JSON.stringify(I18N, null, 4) + ';';
-  }
-
-  function exportUpdatedHtml(){
-    if (editMode) commitEdits(currentLang);
-
-    // Work on a detached clone so the live page (and the editor itself)
-    // is untouched — the exported file should look like a normal,
-    // freshly-loaded site with edit mode off.
-    const clone = document.documentElement.cloneNode(true);
-    // Exported file always boots in Hebrew (the site default) regardless
-    // of whichever language was on screen while editing — self-correcting
-    // anyway via setLang(currentLang) at load, but set explicitly too so
-    // there's no flash of the wrong direction before the script runs.
-    clone.setAttribute('lang', 'he');
-    clone.setAttribute('dir', 'rtl');
-    clone.querySelectorAll('[data-i18n], [data-i18n-html]').forEach(el => el.removeAttribute('contenteditable'));
-    clone.classList.remove('i18n-editing');
-    const cloneEntryBtn = clone.querySelector('#editEntryBtn');
-    if (cloneEntryBtn) cloneEntryBtn.parentNode.removeChild(cloneEntryBtn);
-    const cloneToolbar = clone.querySelector('#editToolbar');
-    if (cloneToolbar) cloneToolbar.parentNode.removeChild(cloneToolbar);
-    const cloneToast = clone.querySelector('#editToast');
-    if (cloneToast) cloneToast.parentNode.removeChild(cloneToast);
-
-    let html = '<!DOCTYPE html>\n' + clone.outerHTML;
-
-    const startMarker = '/* I18N_DATA_START */';
-    const endMarker = '/* I18N_DATA_END */';
-    const start = html.indexOf(startMarker);
-    const end = html.indexOf(endMarker);
-    if (start !== -1 && end !== -1) {
-      html = html.slice(0, start + startMarker.length) + '\n  ' + serializeI18N() + '\n  ' + html.slice(end);
-    }
-
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'index.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    showEditToast('קובץ index.html מעודכן ירד למחשב שלך.');
-  }
 </script>
 
 <!-- ============ live products from Firebase (see SETUP-FIREBASE.md) ============ -->
