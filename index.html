@@ -247,8 +247,8 @@
     display:flex;
     flex-direction:column;
     justify-content:center;
-    padding-top:120px;
-    padding-bottom:80px;
+    padding-top:110px;
+    padding-bottom:56px;
     overflow:hidden;
   }
 
@@ -284,7 +284,7 @@
   html[dir="rtl"] .italic{font-style:normal; font-weight:700;}
   .hero-logo{
     display:block;
-    width:min(560px, 86vw);
+    width:min(440px, 72vw);
     height:auto;
     margin:0 auto;
   }
@@ -304,6 +304,21 @@
     flex-wrap:wrap;
     align-items:center;
     justify-content:center;
+  }
+  .hero-visual{
+    margin-top:40px;
+    width:min(600px, 88vw);
+    aspect-ratio:16/9;
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:0 30px 60px -30px rgba(28,23,18,0.35);
+  }
+  .hero-visual img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center 35%;
+    display:block;
   }
   .btn{
     font-family:var(--font-sans);
@@ -973,6 +988,9 @@
         <a href="#join" class="btn btn-primary" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
         <a href="#story" class="btn btn-ghost" data-i18n="cta.readStory">הסיפור</a>
       </div>
+      <div class="hero-visual">
+        <img src="assets/IMG_0078.png" alt="מכונת הקלייה שלנו, Bullet R2 Pro" data-i18n-alt="hero.visualAlt">
+      </div>
     </div>
     <div class="scroll-cue">
       <span data-i18n="scroll.label">גללו</span>
@@ -1154,6 +1172,7 @@
         "cta.readStory": "Read the story",
         "hero.eyebrow": "A new roastery — opening soon",
         "hero.sub": "A small-batch promise, roasted daily. Founder-led coffee, built from the first bean — no shortcuts, no committee, just Ido and a roaster.",
+        "hero.visualAlt": "Our roasting machine, the Bullet R2 Pro",
         "scroll.label": "Scroll",
         "story.kicker": "Our story",
         "story.portraitCap": "Bullet R2 Pro · Our roaster",
@@ -1223,6 +1242,7 @@
         "cta.readStory": "הסיפור",
         "hero.eyebrow": "בקרוב",
         "hero.sub": "בית קלייה קטן. קולים, טועמים, ומתכוננים לפתוח.",
+        "hero.visualAlt": "מכונת הקלייה שלנו, Bullet R2 Pro",
         "scroll.label": "גללו",
         "story.kicker": "הסיפור",
         "story.portraitCap": "Bullet R2 Pro · הקולה שלנו",
