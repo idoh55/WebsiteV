@@ -1320,6 +1320,7 @@
         "waitlist.sub": "Be first to know when the roaster fires up, the first bags ship, and early-access pricing opens. One email, when it matters — nothing else.",
         "waitlist.emailPlaceholder": "you@email.com",
         "waitlist.submit": "Join waitlist",
+        "waitlist.error": "Something went wrong — please try again in a moment.",
         "waitlist.fine": "No spam, ever — just a note when the first roast ships.",
         "waitlist.successStrong": "You're on the list.",
         "waitlist.successText": "We'll email you the moment the first roast is ready to ship.",
@@ -1401,6 +1402,7 @@
         "waitlist.sub": "תהיו הראשונים לדעת מתי הקולה מתחילה לעבוד, מתי השקיות הראשונות יוצאות, ומתי נפתחת הרשמה מוקדמת במחיר מיוחד. מייל אחד, בדיוק כשצריך — ותו לא.",
         "waitlist.emailPlaceholder": "Your Email",
         "waitlist.submit": "הצטרפו לרשימה",
+        "waitlist.error": "משהו השתבש — נסו שוב בעוד רגע.",
         "waitlist.fine": "",
         "waitlist.successStrong": "אתם ברשימה.",
         "waitlist.successText": "נשלח לכם מייל ברגע שהקלייה הראשונה מוכנה לצאת.",
@@ -1504,16 +1506,30 @@
   }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
   revealEls.forEach(el => io.observe(el));
 
-  // Waitlist form (front-end only, "coming soon" style)
+  // Waitlist form — adds the email to the Resend Audience via /api/subscribe.
   const form = document.getElementById('waitlistForm');
   const success = document.getElementById('waitlistSuccess');
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const emailInput = document.getElementById('waitlistEmail');
-    if (!emailInput.value) return;
-    form.style.display = 'none';
-    document.querySelector('.waitlist-fine').style.display = 'none';
-    success.classList.add('show');
+    const email = emailInput.value.trim();
+    if (!email) return;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error('subscribe failed');
+      form.style.display = 'none';
+      document.querySelector('.waitlist-fine').style.display = 'none';
+      success.classList.add('show');
+    } catch (err) {
+      submitBtn.disabled = false;
+      alert(I18N[currentLang]['waitlist.error']);
+    }
   });
 
   /* ============ OWNER CONTENT-EDIT MODE ============
