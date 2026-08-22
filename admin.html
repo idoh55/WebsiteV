@@ -167,7 +167,7 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-  import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, orderBy, query, runTransaction } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
   import { firebaseConfig } from './assets/firebase-config.js';
 
   const app = initializeApp(firebaseConfig);
@@ -440,9 +440,38 @@
         </td>
       </tr>`).join('');
     body.querySelectorAll('[data-order]').forEach(sel => sel.addEventListener('change', async () => {
-      await updateDoc(doc(db, 'orders', sel.dataset.order), { status: sel.value });
+      await setOrderStatus(sel.dataset.order, sel.value);
       loadOrders();
     }));
+  }
+
+  // Marking an order "paid" is the manual replacement for what the old
+  // CardCom webhook did automatically: decrement stock for each item, but
+  // only once per order (guarded by stockDecremented) so flipping the
+  // status back and forth (e.g. paid -> refunded -> paid) can't double-count.
+  async function setOrderStatus(orderId, newStatus) {
+    const orderRef = doc(db, 'orders', orderId);
+    if (newStatus !== 'paid') {
+      await updateDoc(orderRef, { status: newStatus });
+      return;
+    }
+    await runTransaction(db, async (tx) => {
+      const orderSnap = await tx.get(orderRef);
+      if (!orderSnap.exists()) return;
+      const order = orderSnap.data();
+      const updates = { status: newStatus };
+      if (!order.stockDecremented && order.items?.length) {
+        const productRefs = order.items.map(i => doc(db, 'products', i.id));
+        const productSnaps = await Promise.all(productRefs.map(ref => tx.get(ref)));
+        productSnaps.forEach((snap, idx) => {
+          if (!snap.exists()) return;
+          const stock = (snap.data().stock ?? 0) - order.items[idx].qty;
+          tx.update(productRefs[idx], { stock: Math.max(0, stock) });
+        });
+        updates.stockDecremented = true;
+      }
+      tx.update(orderRef, updates);
+    });
   }
 
   function exportOrdersCsv() {

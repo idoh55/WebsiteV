@@ -649,6 +649,7 @@
   .cart-total{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;margin-bottom:16px;color:var(--ink-soft);}
   .cart-total .amount{font-family:var(--font-serif);font-weight:600;font-size:22px;color:var(--ink);}
   .cart-checkout{width:100%;background:var(--ink);color:var(--cream);border:none;padding:16px;border-radius:100px;font-family:var(--font-sans);font-weight:600;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .25s var(--ease), transform .25s var(--ease);}
+  .cart-checkout-note{margin-top:10px;font-size:12.5px;line-height:1.5;color:var(--ink-soft);text-align:center;}
   .cart-checkout:hover{background:var(--rust); transform:translateY(-2px);}
   .cart-checkout:disabled{opacity:0.6; cursor:default; transform:none;}
   html[dir="rtl"] .cart-checkout svg{transform:scaleX(-1);}
@@ -1090,9 +1091,10 @@
     </div>
     <div class="cart-total"><span data-i18n="cart.total">סה"כ</span><span class="amount" id="cartTotal">0 ₪</span></div>
     <button type="button" class="cart-checkout" id="cartCheckout">
-      <span data-i18n="cart.checkout">מעבר לתשלום</span>
+      <span data-i18n="cart.checkout">שליחת בקשת הזמנה</span>
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
     </button>
+    <p class="cart-checkout-note" data-i18n="cart.checkoutNote">ללא תשלום כרגע — ניצור איתכם קשר עם קישור לתשלום.</p>
   </div>
 </aside>
 
@@ -1160,11 +1162,14 @@
         "cart.namePlaceholder": "Full name",
         "cart.phonePlaceholder": "Mobile phone",
         "cart.total": "Total",
-        "cart.checkout": "Go to payment",
+        "cart.checkout": "Send order request",
+        "cart.checkoutNote": "No payment now — we'll contact you with a payment link.",
         "cart.decreaseQty": "Decrease quantity",
         "cart.increaseQty": "Increase quantity",
         "cart.invalidName": "Please enter your full name (first and last).",
         "cart.invalidPhone": "Please enter a valid Israeli mobile phone number.",
+        "checkout.requestSuccess": "Order request sent — thank you! We'll be in touch soon with a payment link.",
+        "checkout.requestError": "Something went wrong sending your order — please try again in a moment.",
         "nav.story": "Story",
         "nav.coffee": "Coffee",
         "nav.join": "Join",
@@ -1230,11 +1235,14 @@
         "cart.namePlaceholder": "שם מלא",
         "cart.phonePlaceholder": "טלפון נייד",
         "cart.total": "סה\"כ",
-        "cart.checkout": "מעבר לתשלום",
+        "cart.checkout": "שליחת בקשת הזמנה",
+        "cart.checkoutNote": "ללא תשלום כרגע — ניצור איתכם קשר עם קישור לתשלום.",
         "cart.decreaseQty": "הפחת כמות",
         "cart.increaseQty": "הוסף כמות",
         "cart.invalidName": "נא להזין שם מלא (שם פרטי ושם משפחה).",
         "cart.invalidPhone": "נא להזין מספר טלפון נייד ישראלי תקין.",
+        "checkout.requestSuccess": "בקשת ההזמנה נשלחה — תודה! ניצור איתכם קשר בקרוב עם קישור לתשלום.",
+        "checkout.requestError": "משהו השתבש בשליחת ההזמנה — נסו שוב בעוד רגע.",
         "nav.story": "הסיפור",
         "nav.coffee": "הקפה",
         "nav.join": "הצטרפות",
@@ -1398,9 +1406,9 @@
     }
   });
 
-  /* ============ cart + CardCom checkout ============ */
+  /* ============ cart + order request ============ */
   const CART_KEY = 'idoCart';
-  const CHECKOUT_ENDPOINT = '/api/create-cardcom-payment'; // deploy the serverless function and set your real URL here
+  const CHECKOUT_ENDPOINT = '/api/create-order';
   function getCart(){ try{ return JSON.parse(localStorage.getItem(CART_KEY)) || []; }catch(e){ return []; } }
   function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCart(); }
   function addToCart(id, name, price, image){
@@ -1512,6 +1520,8 @@
       alert(t['cart.invalidPhone']);
       return;
     }
+    const checkoutBtn = document.getElementById('cartCheckout');
+    checkoutBtn.disabled = true;
     try {
       const res = await fetch(CHECKOUT_ENDPOINT, {
         method: 'POST',
@@ -1519,30 +1529,28 @@
         body: JSON.stringify({ items: cart, fullName, phone })
       });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else alert('שגיאה בפתיחת התשלום. יש לחבר את שרת ה-Checkout.');
+      if (!res.ok || !data.ok) throw new Error(data.error || 'order request failed');
+      saveCart([]);
+      closeCart();
+      document.getElementById('checkoutName').value = '';
+      document.getElementById('checkoutPhone').value = '';
+      showCheckoutBanner('success', t['checkout.requestSuccess']);
     } catch(e) {
-      alert('שרת התשלום עדיין לא מחובר — יש להטמיע את הפונקציה בשרת (ראו api/create-cardcom-payment.js).');
+      checkoutBtn.disabled = false;
+      showCheckoutBanner('failed', t['checkout.requestError']);
     }
   }
+  // Scoped to #bentoGrid only — the product-expanded panel's own
+  // add-to-cart button is wired separately (see openProductDetail), so a
+  // global selector here would double-bind it too whenever the panel is
+  // open during a re-render.
   function wireAddToCartButtons(){
-    document.querySelectorAll('.add-to-cart').forEach(btn => {
+    document.querySelectorAll('#bentoGrid .add-to-cart').forEach(btn => {
       btn.addEventListener('click', () => addToCart(btn.dataset.id, btn.dataset.name, Number(btn.dataset.price), btn.dataset.image));
     });
   }
   window.wireAddToCartButtons = wireAddToCartButtons;
 
-  // ---------- post-checkout redirect (?checkout=success|cancelled from CardCom) ----------
-  const CHECKOUT_MSGS = {
-    he: {
-      success: 'התשלום התקבל בהצלחה — תודה על ההזמנה! נעדכן אתכם כשהשקית בדרך.',
-      cancelled: 'התשלום בוטל או נכשל — העגלה שלכם עדיין שמורה, אפשר לנסות שוב.',
-    },
-    en: {
-      success: "Payment received — thank you for your order! We'll update you when your bag ships.",
-      cancelled: 'Payment was cancelled or failed — your cart is still saved, feel free to try again.',
-    },
-  };
   let checkoutBannerTimer = null;
   function showCheckoutBanner(kind, text){
     const banner = document.getElementById('checkoutBanner');
@@ -1553,22 +1561,13 @@
     clearTimeout(checkoutBannerTimer);
     checkoutBannerTimer = setTimeout(() => banner.classList.remove('show'), 10000);
   }
-  function handleCheckoutRedirect(){
-    const params = new URLSearchParams(window.location.search);
-    const status = params.get('checkout');
-    if (status !== 'success' && status !== 'cancelled') return;
-    if (status === 'success') saveCart([]);
-    const msgs = CHECKOUT_MSGS[currentLang] || CHECKOUT_MSGS.he;
-    showCheckoutBanner(status, msgs[status]);
-    params.delete('checkout');
-    const newSearch = params.toString();
-    window.history.replaceState({}, '', window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash);
-  }
 
   document.addEventListener('DOMContentLoaded', () => {
     renderCart();
-    wireAddToCartButtons();
-    handleCheckoutRedirect();
+    // Not wiring #bentoGrid's add-to-cart buttons here — at this point the
+    // grid either has no buttons yet (still loading) or was already wired
+    // by the module script's renderGrid(), so doing it here too would
+    // double-bind whichever buttons already exist.
     document.getElementById('cartToggle')?.addEventListener('click', openCart);
     document.getElementById('cartClose')?.addEventListener('click', closeCart);
     document.getElementById('cartOverlay')?.addEventListener('click', closeCart);

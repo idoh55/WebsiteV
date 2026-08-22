@@ -4,31 +4,7 @@
 // Create the Audience once in the Resend dashboard and put its id in
 // RESEND_AUDIENCE_ID.
 
-const admin = require('./_firebase-admin');
-const db = admin.firestore();
-
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const RATE_LIMIT_MAX = 5; // per IP, per window
-
-// Firestore-backed sliding-window-ish rate limit (server-only collection,
-// never touched by client SDK code, so default-deny Firestore rules are
-// fine for it) — cheap way to stop a script from hammering the endpoint
-// without adding a separate Redis/KV dependency.
-async function checkRateLimit(key) {
-  const ref = db.collection('rateLimits').doc(key);
-  const now = Date.now();
-  return db.runTransaction(async (tx) => {
-    const snap = await tx.get(ref);
-    const data = snap.exists ? snap.data() : null;
-    if (!data || now - data.windowStart > RATE_LIMIT_WINDOW_MS) {
-      tx.set(ref, { windowStart: now, count: 1 });
-      return true;
-    }
-    if (data.count >= RATE_LIMIT_MAX) return false;
-    tx.update(ref, { count: data.count + 1 });
-    return true;
-  });
-}
+const { getClientIp, checkRateLimit } = require('./_rate-limit');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -49,9 +25,9 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
+  const ip = getClientIp(req);
   try {
-    const allowed = await checkRateLimit(`subscribe_${ip}`);
+    const allowed = await checkRateLimit(`subscribe_${ip}`, { windowMs: 60 * 60 * 1000, max: 5 });
     if (!allowed) {
       res.status(429).json({ error: 'Too many requests — please try again later' });
       return;
