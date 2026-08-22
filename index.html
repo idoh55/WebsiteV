@@ -662,7 +662,6 @@
   .otp-links{display:flex;justify-content:space-between;gap:12px;}
   .link-btn{background:none;border:none;padding:0;font-family:var(--font-sans);font-size:12.5px;font-weight:600;color:var(--ink-soft);text-decoration:underline;text-underline-offset:2px;cursor:pointer;}
   .link-btn:hover{color:var(--ink);}
-  #recaptchaContainer{position:fixed;bottom:-9999px;}
 
   /* ---------- post-checkout result banner ---------- */
   .checkout-banner{
@@ -1099,6 +1098,7 @@
       <div class="cart-fields">
         <input type="text" id="checkoutName" placeholder="שם מלא" aria-label="שם מלא" data-i18n-placeholder="cart.namePlaceholder" data-i18n-aria-label="cart.namePlaceholder" required>
         <input type="tel" id="checkoutPhone" placeholder="טלפון נייד" aria-label="טלפון נייד" data-i18n-placeholder="cart.phonePlaceholder" data-i18n-aria-label="cart.phonePlaceholder" required>
+        <input type="email" id="checkoutEmail" placeholder="אימייל" aria-label="אימייל" data-i18n-placeholder="cart.emailPlaceholder" data-i18n-aria-label="cart.emailPlaceholder" required>
         <div class="hp-field" aria-hidden="true">
           <label for="checkoutCompany">Company</label>
           <input type="text" id="checkoutCompany" name="company" tabindex="-1" autocomplete="off">
@@ -1112,7 +1112,7 @@
       <p class="cart-checkout-note" data-i18n="cart.checkoutNote">ללא תשלום כרגע — ניצור איתכם קשר עם קישור לתשלום.</p>
     </div>
     <div class="otp-step" id="otpStep" style="display:none;">
-      <p class="otp-label" data-i18n="cart.otpLabel">שלחנו קוד אימות בהודעת SMS למספר שהזנתם. הזינו אותו כאן כדי לשלוח את בקשת ההזמנה:</p>
+      <p class="otp-label" data-i18n="cart.otpLabel">שלחנו קוד אימות למייל שהזנתם. הזינו אותו כאן כדי לשלוח את בקשת ההזמנה:</p>
       <div class="otp-fields">
         <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="otpCode" placeholder="000000" aria-label="קוד אימות" data-i18n-aria-label="cart.otpLabel">
         <button type="button" class="cart-checkout" id="otpVerifyBtn">
@@ -1125,7 +1125,6 @@
         <button type="button" class="link-btn" id="otpCancelBtn" data-i18n="cart.otpCancel">ביטול</button>
       </div>
     </div>
-    <div id="recaptchaContainer"></div>
   </div>
 </aside>
 
@@ -1192,10 +1191,11 @@
         "cart.empty": "Your cart is empty. Maybe add a bag of coffee?",
         "cart.namePlaceholder": "Full name",
         "cart.phonePlaceholder": "Mobile phone",
+        "cart.emailPlaceholder": "Email",
         "cart.total": "Total",
         "cart.checkout": "Send order request",
         "cart.checkoutNote": "No payment now — we'll contact you with a payment link.",
-        "cart.otpLabel": "We sent a verification code by SMS to the number you entered. Enter it here to send your order request:",
+        "cart.otpLabel": "We emailed a verification code to the address you entered. Enter it here to send your order request:",
         "cart.otpVerify": "Verify & send",
         "cart.otpResend": "Send a new code",
         "cart.otpCancel": "Cancel",
@@ -1208,6 +1208,7 @@
         "cart.increaseQty": "Increase quantity",
         "cart.invalidName": "Please enter your full name (first and last).",
         "cart.invalidPhone": "Please enter a valid Israeli mobile phone number.",
+        "cart.invalidEmail": "Please enter a valid email address.",
         "checkout.requestSuccess": "Order request sent — thank you! We'll be in touch soon with a payment link.",
         "checkout.requestError": "Something went wrong sending your order — please try again in a moment.",
         "nav.story": "Story",
@@ -1274,10 +1275,11 @@
         "cart.empty": "העגלה שלך ריקה. אולי כדאי להוסיף שקית קפה?",
         "cart.namePlaceholder": "שם מלא",
         "cart.phonePlaceholder": "טלפון נייד",
+        "cart.emailPlaceholder": "אימייל",
         "cart.total": "סה\"כ",
         "cart.checkout": "שליחת בקשת הזמנה",
         "cart.checkoutNote": "ללא תשלום כרגע — ניצור איתכם קשר עם קישור לתשלום.",
-        "cart.otpLabel": "שלחנו קוד אימות בהודעת SMS למספר שהזנתם. הזינו אותו כאן כדי לשלוח את בקשת ההזמנה:",
+        "cart.otpLabel": "שלחנו קוד אימות למייל שהזנתם. הזינו אותו כאן כדי לשלוח את בקשת ההזמנה:",
         "cart.otpVerify": "אימות ושליחה",
         "cart.otpResend": "שליחת קוד חדש",
         "cart.otpCancel": "ביטול",
@@ -1290,6 +1292,7 @@
         "cart.increaseQty": "הוסף כמות",
         "cart.invalidName": "נא להזין שם מלא (שם פרטי ושם משפחה).",
         "cart.invalidPhone": "נא להזין מספר טלפון נייד ישראלי תקין.",
+        "cart.invalidEmail": "נא להזין כתובת אימייל תקינה.",
         "checkout.requestSuccess": "בקשת ההזמנה נשלחה — תודה! ניצור איתכם קשר בקרוב עם קישור לתשלום.",
         "checkout.requestError": "משהו השתבש בשליחת ההזמנה — נסו שוב בעוד רגע.",
         "nav.story": "הסיפור",
@@ -1458,6 +1461,7 @@
   /* ============ cart + order request ============ */
   const CART_KEY = 'idoCart';
   const CHECKOUT_ENDPOINT = '/api/create-order';
+  const SEND_OTP_ENDPOINT = '/api/send-order-otp';
   function getCart(){ try{ return JSON.parse(localStorage.getItem(CART_KEY)) || []; }catch(e){ return []; } }
   function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCart(); }
   function addToCart(id, name, price, image){
@@ -1560,16 +1564,17 @@
     const otpStep = document.getElementById('otpStep');
     if (otpStep && otpStep.style.display !== 'none') backToFormStep();
   }
-  // Checkout is two steps: goToCheckout() validates the form and sends the
-  // SMS code (via window.sendOrderOtp, defined in the Firebase module
-  // script below), then verifyOtpAndSubmit() confirms the code and only
-  // then actually submits the order — the phone token proving the SMS was
-  // received travels with that second request.
+  // Checkout is two steps: goToCheckout() validates the form and asks the
+  // server to email a code, then verifyOtpAndSubmit() sends that code
+  // along with the actual order — api/create-order.js verifies the code
+  // and creates the order in the same request.
   async function goToCheckout(){
     const cart = getCart();
     if (cart.length === 0) return;
     const fullName = document.getElementById('checkoutName').value.trim();
     const phone = document.getElementById('checkoutPhone').value.trim();
+    const email = document.getElementById('checkoutEmail').value.trim();
+    const company = document.getElementById('checkoutCompany').value;
     const t = I18N[currentLang];
     if (!fullName || fullName.split(' ').filter(Boolean).length < 2){
       alert(t['cart.invalidName']);
@@ -1579,10 +1584,20 @@
       alert(t['cart.invalidPhone']);
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      alert(t['cart.invalidEmail']);
+      return;
+    }
     const checkoutBtn = document.getElementById('cartCheckout');
     checkoutBtn.disabled = true;
     try {
-      await window.sendOrderOtp(phone);
+      const res = await fetch(SEND_OTP_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, company })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'send otp failed');
       document.getElementById('checkoutFormStep').style.display = 'none';
       const otpStep = document.getElementById('otpStep');
       otpStep.style.display = 'block';
@@ -1606,11 +1621,13 @@
     document.getElementById('cartCheckout').disabled = getCart().length === 0;
   }
 
-  // Full reset after a successful order request — also clears name/phone
-  // since that order is done and the next one (if any) is a new customer.
+  // Full reset after a successful order request — also clears name/phone/
+  // email since that order is done and the next one (if any) is a new
+  // customer.
   function resetCheckoutForm(){
     document.getElementById('checkoutName').value = '';
     document.getElementById('checkoutPhone').value = '';
+    document.getElementById('checkoutEmail').value = '';
     backToFormStep();
   }
 
@@ -1626,15 +1643,15 @@
     verifyBtn.disabled = true;
     otpStatus.textContent = t['cart.otpVerifying'];
     try {
-      const phoneToken = await window.verifyOrderOtp(code);
       const cart = getCart();
       const fullName = document.getElementById('checkoutName').value.trim();
       const phone = document.getElementById('checkoutPhone').value.trim();
+      const email = document.getElementById('checkoutEmail').value.trim();
       const company = document.getElementById('checkoutCompany').value;
       const res = await fetch(CHECKOUT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: cart, fullName, phone, company, phoneToken })
+        body: JSON.stringify({ items: cart, fullName, phone, email, company, otpCode: code })
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || 'order request failed');
@@ -1649,12 +1666,19 @@
   }
 
   async function resendOtp(){
-    const phone = document.getElementById('checkoutPhone').value.trim();
+    const email = document.getElementById('checkoutEmail').value.trim();
+    const company = document.getElementById('checkoutCompany').value;
     const otpStatus = document.getElementById('otpStatus');
     const t = I18N[currentLang];
     otpStatus.textContent = t['cart.otpSending'];
     try {
-      await window.sendOrderOtp(phone);
+      const res = await fetch(SEND_OTP_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, company })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'send otp failed');
       otpStatus.textContent = t['cart.otpResent'];
     } catch(e) {
       otpStatus.textContent = t['cart.otpSendError'];
@@ -1711,50 +1735,12 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getFirestore, collection, query, where, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
   import { firebaseConfig } from './assets/firebase-config.js';
 
   const firebaseApp = initializeApp(firebaseConfig);
   const db = getFirestore(firebaseApp);
-  const auth = getAuth(firebaseApp);
 
   function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-  // ---------- phone verification (order-spam guard) ----------
-  // Firebase Phone Auth is used purely as a one-time proof-of-phone-number
-  // for order requests — not as a real account system. The client gets a
-  // short-lived ID token after the customer enters the SMS code; the
-  // server (api/create-order.js) verifies that token and checks its phone
-  // claim matches the number submitted with the order, then we sign out
-  // immediately so no session persists in the browser.
-  let recaptchaVerifier = null;
-  let otpConfirmation = null;
-
-  function getRecaptchaVerifier(){
-    if (!recaptchaVerifier) {
-      recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptchaContainer', { size: 'invisible' });
-    }
-    return recaptchaVerifier;
-  }
-
-  // Israeli local mobile format (0XXXXXXXXX) -> E.164 (+972XXXXXXXXX).
-  function phoneToE164(localPhone){
-    const digits = String(localPhone).replace(/\D/g, '');
-    return '+972' + digits.slice(1);
-  }
-
-  window.sendOrderOtp = async function(localPhone){
-    otpConfirmation = await signInWithPhoneNumber(auth, phoneToE164(localPhone), getRecaptchaVerifier());
-  };
-
-  window.verifyOrderOtp = async function(code){
-    if (!otpConfirmation) throw new Error('No verification in progress');
-    const result = await otpConfirmation.confirm(code);
-    const idToken = await result.user.getIdToken();
-    await signOut(auth);
-    otpConfirmation = null;
-    return idToken;
-  };
 
   let productsById = {};
 

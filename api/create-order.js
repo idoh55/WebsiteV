@@ -20,13 +20,35 @@ function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-// Israeli local mobile format (0XXXXXXXXX) -> E.164 (+972XXXXXXXXX), same
-// conversion the client does before sending the number to Firebase Phone
-// Auth — has to match exactly or a legitimately-verified number would
-// never match what verifyIdToken() reports back.
-function phoneToE164(localPhone) {
-  const digits = String(localPhone).replace(/\D/g, '');
-  return '+972' + digits.slice(1);
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+const MAX_OTP_ATTEMPTS = 5;
+
+// Checks the code against what api/send-order-otp.js stored for this email,
+// consuming it on success (single-use) so a leaked/guessed code can't be
+// replayed for a second order. Wrong-code attempts are capped so someone
+// can't just brute-force a 6-digit code against a live document.
+async function verifyOrderOtp(email, code) {
+  const ref = db.collection('orderOtps').doc(email);
+  const snap = await ref.get();
+  if (!snap.exists) return { ok: false, reason: 'No verification code was sent to this email' };
+  const data = snap.data();
+  if (Date.now() > data.expiresAt) {
+    await ref.delete();
+    return { ok: false, reason: 'Verification code expired' };
+  }
+  if (data.attempts >= MAX_OTP_ATTEMPTS) {
+    await ref.delete();
+    return { ok: false, reason: 'Too many incorrect attempts — request a new code' };
+  }
+  if (data.code !== String(code || '').trim()) {
+    await ref.update({ attempts: data.attempts + 1 });
+    return { ok: false, reason: 'Incorrect verification code' };
+  }
+  await ref.delete();
+  return { ok: true };
 }
 
 // Best-effort — a failed/unconfigured notification should never break the
@@ -50,6 +72,7 @@ async function sendOrderNotification(order) {
           <p>אין תשלום מקושר — יש ליצור קשר עם הלקוח כדי לשלוח קישור לתשלום.</p>
           <p><strong>שם:</strong> ${escapeHtml(order.fullName || '—')}</p>
           <p><strong>טלפון:</strong> ${escapeHtml(order.phone || '—')}</p>
+          <p><strong>אימייל:</strong> ${escapeHtml(order.email || '—')}</p>
           <p><strong>סה"כ:</strong> ${order.amount} ₪</p>
           <p><strong>פריטים:</strong><br>${itemsHtml}</p>
         </div>`,
@@ -88,7 +111,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { items, fullName, phone, phoneToken } = req.body || {};
+    const { items, fullName, phone, email, otpCode } = req.body || {};
     if (!items || !items.length) {
       res.status(400).json({ error: 'Cart is empty' });
       return;
@@ -102,24 +125,19 @@ module.exports = async (req, res) => {
       res.status(400).json({ error: 'Please provide a valid mobile phone number' });
       return;
     }
+    const cleanEmail = normalizeEmail(email);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      res.status(400).json({ error: 'Please provide a valid email address' });
+      return;
+    }
 
-    // The client only gets this token after the customer actually receives
-    // and enters an SMS code (Firebase Phone Auth) — verifying it here, and
-    // checking its phone claim against the submitted number, is what makes
-    // the honeypot/rate-limit/ban checks hard to route around with a bot.
-    if (!phoneToken) {
-      res.status(401).json({ error: 'Phone verification required' });
-      return;
-    }
-    let decodedToken;
-    try {
-      decodedToken = await admin.auth().verifyIdToken(phoneToken);
-    } catch (e) {
-      res.status(401).json({ error: 'Invalid phone verification' });
-      return;
-    }
-    if (decodedToken.phone_number !== phoneToE164(cleanPhone)) {
-      res.status(401).json({ error: 'Phone verification does not match submitted number' });
+    // The client only reaches this point after the customer receives and
+    // enters the emailed code (see api/send-order-otp.js) — verifying it
+    // here is what makes the honeypot/rate-limit/ban checks hard to route
+    // around with a bot.
+    const otpResult = await verifyOrderOtp(cleanEmail, otpCode);
+    if (!otpResult.ok) {
+      res.status(401).json({ error: otpResult.reason });
       return;
     }
 
@@ -162,6 +180,7 @@ module.exports = async (req, res) => {
       amount,
       fullName: String(fullName).trim(),
       phone: String(phone).trim(),
+      email: cleanEmail,
       status: 'pending',
       stockDecremented: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),

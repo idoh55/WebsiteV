@@ -158,7 +158,7 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>תאריך</th><th>לקוח</th><th>טלפון</th><th>פריטים</th><th>סכום</th><th>סטטוס</th><th>עדכון ידני</th><th></th></tr></thead>
+          <thead><tr><th>תאריך</th><th>לקוח</th><th>טלפון</th><th>אימייל</th><th>פריטים</th><th>סכום</th><th>סטטוס</th><th>עדכון ידני</th><th></th></tr></thead>
           <tbody id="ordersBody"></tbody>
         </table>
       </div>
@@ -436,7 +436,7 @@
       return (o.fullName || '').toLowerCase().includes(orderSearchTerm) || (o.phone || '').includes(orderSearchTerm);
     });
     if (filtered.length === 0) {
-      body.innerHTML = `<tr><td colspan="8" class="empty-note">לא נמצאו הזמנות תואמות.</td></tr>`;
+      body.innerHTML = `<tr><td colspan="9" class="empty-note">לא נמצאו הזמנות תואמות.</td></tr>`;
       return;
     }
     body.innerHTML = filtered.map(o => `
@@ -444,6 +444,7 @@
         <td>${o.dateStr}</td>
         <td>${o.fullName || '—'}</td>
         <td>${o.phone || '—'}</td>
+        <td>${o.email || '—'}</td>
         <td class="items-summary">${itemsSummary(o.items)}</td>
         <td>${o.amount} ₪</td>
         <td><span class="status-pill status-${o.status}">${o.status}</span></td>
@@ -499,13 +500,13 @@
   }
 
   function exportOrdersCsv() {
-    const rows = [['תאריך', 'לקוח', 'טלפון', 'פריטים', 'סכום', 'סטטוס']];
+    const rows = [['תאריך', 'לקוח', 'טלפון', 'אימייל', 'פריטים', 'סכום', 'סטטוס']];
     const filtered = ordersCache.filter(o => {
       if (orderStatusFilterVal && o.status !== orderStatusFilterVal) return false;
       if (!orderSearchTerm) return true;
       return (o.fullName || '').toLowerCase().includes(orderSearchTerm) || (o.phone || '').includes(orderSearchTerm);
     });
-    filtered.forEach(o => rows.push([o.dateStr, o.fullName || '', o.phone || '', itemsSummary(o.items), o.amount, o.status]));
+    filtered.forEach(o => rows.push([o.dateStr, o.fullName || '', o.phone || '', o.email || '', itemsSummary(o.items), o.amount, o.status]));
     const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
