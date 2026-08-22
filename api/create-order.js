@@ -58,9 +58,17 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Honeypot — a hidden field real users never see or fill; bots that fill
+  // every field in the form trip it. Respond as if it worked so the bot
+  // doesn't learn anything and try a different approach.
+  if (req.body?.company) {
+    res.status(200).json({ ok: true });
+    return;
+  }
+
   const ip = getClientIp(req);
   try {
-    const allowed = await checkRateLimit(`create-order_${ip}`, { windowMs: 60 * 60 * 1000, max: 10 });
+    const allowed = await checkRateLimit(`create-order_${ip}`, { windowMs: 60 * 60 * 1000, max: 2 });
     if (!allowed) {
       res.status(429).json({ error: 'Too many requests — please try again later' });
       return;
@@ -80,8 +88,15 @@ module.exports = async (req, res) => {
       res.status(400).json({ error: 'Please provide a full name' });
       return;
     }
-    if (!/^0\d{8,9}$/.test(String(phone || '').trim())) {
+    const cleanPhone = String(phone || '').trim();
+    if (!/^0\d{8,9}$/.test(cleanPhone)) {
       res.status(400).json({ error: 'Please provide a valid mobile phone number' });
+      return;
+    }
+
+    const banSnap = await db.collection('bannedPhones').doc(cleanPhone).get();
+    if (banSnap.exists) {
+      res.status(403).json({ error: 'This phone number is blocked' });
       return;
     }
 

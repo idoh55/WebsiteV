@@ -1088,6 +1088,10 @@
     <div class="cart-fields">
       <input type="text" id="checkoutName" placeholder="שם מלא" aria-label="שם מלא" data-i18n-placeholder="cart.namePlaceholder" data-i18n-aria-label="cart.namePlaceholder" required>
       <input type="tel" id="checkoutPhone" placeholder="טלפון נייד" aria-label="טלפון נייד" data-i18n-placeholder="cart.phonePlaceholder" data-i18n-aria-label="cart.phonePlaceholder" required>
+      <div class="hp-field" aria-hidden="true">
+        <label for="checkoutCompany">Company</label>
+        <input type="text" id="checkoutCompany" name="company" tabindex="-1" autocomplete="off">
+      </div>
     </div>
     <div class="cart-total"><span data-i18n="cart.total">סה"כ</span><span class="amount" id="cartTotal">0 ₪</span></div>
     <button type="button" class="cart-checkout" id="cartCheckout">
@@ -1511,6 +1515,7 @@
     if (cart.length === 0) return;
     const fullName = document.getElementById('checkoutName').value.trim();
     const phone = document.getElementById('checkoutPhone').value.trim();
+    const company = document.getElementById('checkoutCompany').value;
     const t = I18N[currentLang];
     if (!fullName || fullName.split(' ').filter(Boolean).length < 2){
       alert(t['cart.invalidName']);
@@ -1526,7 +1531,7 @@
       const res = await fetch(CHECKOUT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: cart, fullName, phone })
+        body: JSON.stringify({ items: cart, fullName, phone, company })
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || 'order request failed');

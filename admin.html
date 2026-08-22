@@ -94,6 +94,7 @@
   .product-form input:focus, .product-form textarea:focus{outline:none;border-color:var(--rust);}
   .product-form .full{grid-column:1/-1;}
   .product-form .section-note{grid-column:1/-1;border-top:1px solid var(--line);margin-top:8px;padding-top:16px;font-size:12px;font-weight:600;color:var(--ink-soft);}
+  #blockedTab .section-note{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;}
   .product-form .actions{grid-column:1/-1;display:flex;gap:10px;}
   .product-form .actions button.cancel{padding:10px 18px;border-radius:100px;background:none;color:var(--ink);border:1.5px solid var(--line);font-family:inherit;font-weight:600;cursor:pointer;}
   .add-btn{padding:10px 18px;border-radius:100px;border:none;background:var(--ink);color:var(--cream);font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;}
@@ -124,6 +125,7 @@
     <div class="tabs">
       <button type="button" class="tab active" data-tab="products">מוצרים</button>
       <button type="button" class="tab" data-tab="orders">הזמנות</button>
+      <button type="button" class="tab" data-tab="blocked">חסומים</button>
     </div>
 
     <section id="productsTab">
@@ -156,8 +158,22 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>תאריך</th><th>לקוח</th><th>טלפון</th><th>פריטים</th><th>סכום</th><th>סטטוס</th><th>עדכון ידני</th></tr></thead>
+          <thead><tr><th>תאריך</th><th>לקוח</th><th>טלפון</th><th>פריטים</th><th>סכום</th><th>סטטוס</th><th>עדכון ידני</th><th></th></tr></thead>
           <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="blockedTab" style="display:none;">
+      <div class="toolbar">
+        <input type="tel" id="banPhoneInput" placeholder="מספר טלפון לחסימה" aria-label="מספר טלפון לחסימה">
+        <button type="button" class="btn-ghost" id="banPhoneBtn">חסימה</button>
+      </div>
+      <p class="section-note">מספר טלפון חסום לא יוכל לשלוח בקשת הזמנה חדשה באתר.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>טלפון</th><th>נחסם בתאריך</th><th></th></tr></thead>
+          <tbody id="blockedBody"></tbody>
         </table>
       </div>
     </section>
@@ -167,7 +183,7 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-  import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, orderBy, query, runTransaction } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, orderBy, query, runTransaction, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
   import { firebaseConfig } from './assets/firebase-config.js';
 
   const app = initializeApp(firebaseConfig);
@@ -191,7 +207,7 @@
   onAuthStateChanged(auth, (user) => {
     loginScreen.style.display = user ? 'none' : 'flex';
     appEl.style.display = user ? 'block' : 'none';
-    if (user) { loadProducts(); loadOrders(); }
+    if (user) { loadProducts(); loadOrders(); loadBlockedPhones(); }
   });
 
   document.querySelectorAll('.tab').forEach(tab => {
@@ -200,6 +216,7 @@
       tab.classList.add('active');
       document.getElementById('productsTab').style.display = tab.dataset.tab === 'products' ? 'block' : 'none';
       document.getElementById('ordersTab').style.display = tab.dataset.tab === 'orders' ? 'block' : 'none';
+      document.getElementById('blockedTab').style.display = tab.dataset.tab === 'blocked' ? 'block' : 'none';
     });
   });
 
@@ -419,7 +436,7 @@
       return (o.fullName || '').toLowerCase().includes(orderSearchTerm) || (o.phone || '').includes(orderSearchTerm);
     });
     if (filtered.length === 0) {
-      body.innerHTML = `<tr><td colspan="7" class="empty-note">לא נמצאו הזמנות תואמות.</td></tr>`;
+      body.innerHTML = `<tr><td colspan="8" class="empty-note">לא נמצאו הזמנות תואמות.</td></tr>`;
       return;
     }
     body.innerHTML = filtered.map(o => `
@@ -438,10 +455,17 @@
             <option value="refunded" ${o.status === 'refunded' ? 'selected' : ''}>refunded</option>
           </select>
         </td>
+        <td>${o.phone ? `<button type="button" class="small danger" data-ban-phone="${o.phone}">חסימה</button>` : ''}</td>
       </tr>`).join('');
     body.querySelectorAll('[data-order]').forEach(sel => sel.addEventListener('change', async () => {
       await setOrderStatus(sel.dataset.order, sel.value);
       loadOrders();
+    }));
+    body.querySelectorAll('[data-ban-phone]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm(`לחסום את המספר ${btn.dataset.banPhone}?`)) {
+        await banPhone(btn.dataset.banPhone);
+        alert('המספר נחסם.');
+      }
     }));
   }
 
@@ -502,6 +526,60 @@
     });
     renderOrdersTable();
     renderStats();
+  }
+
+  // ---------- blocked phone numbers ----------
+  // Phone number itself is the doc id in the "bannedPhones" collection, so
+  // checking/removing a ban is a direct lookup rather than a query, both
+  // here and from api/create-order.js.
+  let blockedPhonesCache = [];
+
+  function normalizePhone(phone) {
+    return String(phone || '').trim();
+  }
+
+  async function banPhone(phone) {
+    const clean = normalizePhone(phone);
+    if (!clean) return;
+    await setDoc(doc(db, 'bannedPhones', clean), { bannedAt: serverTimestamp() });
+    await loadBlockedPhones();
+  }
+
+  async function unbanPhone(phone) {
+    await deleteDoc(doc(db, 'bannedPhones', phone));
+    await loadBlockedPhones();
+  }
+
+  document.getElementById('banPhoneBtn').addEventListener('click', async () => {
+    const input = document.getElementById('banPhoneInput');
+    const clean = normalizePhone(input.value);
+    if (!clean) return;
+    await banPhone(clean);
+    input.value = '';
+  });
+
+  function renderBlockedTable() {
+    const body = document.getElementById('blockedBody');
+    if (blockedPhonesCache.length === 0) {
+      body.innerHTML = `<tr><td colspan="3" class="empty-note">אין מספרים חסומים.</td></tr>`;
+      return;
+    }
+    body.innerHTML = blockedPhonesCache.map(b => `
+      <tr>
+        <td>${b.id}</td>
+        <td>${b.dateStr}</td>
+        <td><button type="button" class="small" data-unban="${b.id}">ביטול חסימה</button></td>
+      </tr>`).join('');
+    body.querySelectorAll('[data-unban]').forEach(btn => btn.addEventListener('click', () => unbanPhone(btn.dataset.unban)));
+  }
+
+  async function loadBlockedPhones() {
+    const snap = await getDocs(collection(db, 'bannedPhones'));
+    blockedPhonesCache = snap.docs.map(d => {
+      const b = d.data();
+      return { id: d.id, dateStr: b.bannedAt?.toDate ? b.bannedAt.toDate().toLocaleString('he-IL') : '—' };
+    });
+    renderBlockedTable();
   }
 </script>
 </body>
