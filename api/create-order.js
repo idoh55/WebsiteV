@@ -20,6 +20,15 @@ function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// Israeli local mobile format (0XXXXXXXXX) -> E.164 (+972XXXXXXXXX), same
+// conversion the client does before sending the number to Firebase Phone
+// Auth — has to match exactly or a legitimately-verified number would
+// never match what verifyIdToken() reports back.
+function phoneToE164(localPhone) {
+  const digits = String(localPhone).replace(/\D/g, '');
+  return '+972' + digits.slice(1);
+}
+
 // Best-effort — a failed/unconfigured notification should never break the
 // customer-facing order request itself.
 async function sendOrderNotification(order) {
@@ -79,7 +88,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { items, fullName, phone } = req.body || {};
+    const { items, fullName, phone, phoneToken } = req.body || {};
     if (!items || !items.length) {
       res.status(400).json({ error: 'Cart is empty' });
       return;
@@ -91,6 +100,26 @@ module.exports = async (req, res) => {
     const cleanPhone = String(phone || '').trim();
     if (!/^0\d{8,9}$/.test(cleanPhone)) {
       res.status(400).json({ error: 'Please provide a valid mobile phone number' });
+      return;
+    }
+
+    // The client only gets this token after the customer actually receives
+    // and enters an SMS code (Firebase Phone Auth) — verifying it here, and
+    // checking its phone claim against the submitted number, is what makes
+    // the honeypot/rate-limit/ban checks hard to route around with a bot.
+    if (!phoneToken) {
+      res.status(401).json({ error: 'Phone verification required' });
+      return;
+    }
+    let decodedToken;
+    try {
+      decodedToken = await admin.auth().verifyIdToken(phoneToken);
+    } catch (e) {
+      res.status(401).json({ error: 'Invalid phone verification' });
+      return;
+    }
+    if (decodedToken.phone_number !== phoneToE164(cleanPhone)) {
+      res.status(401).json({ error: 'Phone verification does not match submitted number' });
       return;
     }
 

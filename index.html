@@ -653,6 +653,16 @@
   .cart-checkout:hover{background:var(--rust); transform:translateY(-2px);}
   .cart-checkout:disabled{opacity:0.6; cursor:default; transform:none;}
   html[dir="rtl"] .cart-checkout svg{transform:scaleX(-1);}
+  .otp-label{font-size:13.5px;line-height:1.5;color:var(--ink-soft);margin:0 0 14px;}
+  .otp-fields{display:flex;gap:10px;margin-bottom:10px;}
+  .otp-fields input{width:110px;flex:none;font-family:var(--font-sans);font-size:20px;letter-spacing:0.2em;text-align:center;padding:11px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--cream);color:var(--ink);}
+  .otp-fields input:focus{outline:none;border-color:var(--rust);}
+  .otp-fields .cart-checkout{flex:1;padding:11px;}
+  .otp-status{min-height:18px;font-size:12.5px;color:var(--rust-dark);margin:0 0 10px;}
+  .otp-links{display:flex;justify-content:space-between;gap:12px;}
+  .link-btn{background:none;border:none;padding:0;font-family:var(--font-sans);font-size:12.5px;font-weight:600;color:var(--ink-soft);text-decoration:underline;text-underline-offset:2px;cursor:pointer;}
+  .link-btn:hover{color:var(--ink);}
+  #recaptchaContainer{position:fixed;bottom:-9999px;}
 
   /* ---------- post-checkout result banner ---------- */
   .checkout-banner{
@@ -1085,20 +1095,37 @@
   </div>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-foot">
-    <div class="cart-fields">
-      <input type="text" id="checkoutName" placeholder="שם מלא" aria-label="שם מלא" data-i18n-placeholder="cart.namePlaceholder" data-i18n-aria-label="cart.namePlaceholder" required>
-      <input type="tel" id="checkoutPhone" placeholder="טלפון נייד" aria-label="טלפון נייד" data-i18n-placeholder="cart.phonePlaceholder" data-i18n-aria-label="cart.phonePlaceholder" required>
-      <div class="hp-field" aria-hidden="true">
-        <label for="checkoutCompany">Company</label>
-        <input type="text" id="checkoutCompany" name="company" tabindex="-1" autocomplete="off">
+    <div id="checkoutFormStep">
+      <div class="cart-fields">
+        <input type="text" id="checkoutName" placeholder="שם מלא" aria-label="שם מלא" data-i18n-placeholder="cart.namePlaceholder" data-i18n-aria-label="cart.namePlaceholder" required>
+        <input type="tel" id="checkoutPhone" placeholder="טלפון נייד" aria-label="טלפון נייד" data-i18n-placeholder="cart.phonePlaceholder" data-i18n-aria-label="cart.phonePlaceholder" required>
+        <div class="hp-field" aria-hidden="true">
+          <label for="checkoutCompany">Company</label>
+          <input type="text" id="checkoutCompany" name="company" tabindex="-1" autocomplete="off">
+        </div>
+      </div>
+      <div class="cart-total"><span data-i18n="cart.total">סה"כ</span><span class="amount" id="cartTotal">0 ₪</span></div>
+      <button type="button" class="cart-checkout" id="cartCheckout">
+        <span data-i18n="cart.checkout">שליחת בקשת הזמנה</span>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      </button>
+      <p class="cart-checkout-note" data-i18n="cart.checkoutNote">ללא תשלום כרגע — ניצור איתכם קשר עם קישור לתשלום.</p>
+    </div>
+    <div class="otp-step" id="otpStep" style="display:none;">
+      <p class="otp-label" data-i18n="cart.otpLabel">שלחנו קוד אימות בהודעת SMS למספר שהזנתם. הזינו אותו כאן כדי לשלוח את בקשת ההזמנה:</p>
+      <div class="otp-fields">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" id="otpCode" placeholder="000000" aria-label="קוד אימות" data-i18n-aria-label="cart.otpLabel">
+        <button type="button" class="cart-checkout" id="otpVerifyBtn">
+          <span data-i18n="cart.otpVerify">אימות ושליחה</span>
+        </button>
+      </div>
+      <p class="otp-status" id="otpStatus" role="status"></p>
+      <div class="otp-links">
+        <button type="button" class="link-btn" id="otpResendBtn" data-i18n="cart.otpResend">שליחת קוד חדש</button>
+        <button type="button" class="link-btn" id="otpCancelBtn" data-i18n="cart.otpCancel">ביטול</button>
       </div>
     </div>
-    <div class="cart-total"><span data-i18n="cart.total">סה"כ</span><span class="amount" id="cartTotal">0 ₪</span></div>
-    <button type="button" class="cart-checkout" id="cartCheckout">
-      <span data-i18n="cart.checkout">שליחת בקשת הזמנה</span>
-      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
-    </button>
-    <p class="cart-checkout-note" data-i18n="cart.checkoutNote">ללא תשלום כרגע — ניצור איתכם קשר עם קישור לתשלום.</p>
+    <div id="recaptchaContainer"></div>
   </div>
 </aside>
 
@@ -1168,6 +1195,15 @@
         "cart.total": "Total",
         "cart.checkout": "Send order request",
         "cart.checkoutNote": "No payment now — we'll contact you with a payment link.",
+        "cart.otpLabel": "We sent a verification code by SMS to the number you entered. Enter it here to send your order request:",
+        "cart.otpVerify": "Verify & send",
+        "cart.otpResend": "Send a new code",
+        "cart.otpCancel": "Cancel",
+        "cart.otpInvalid": "Incorrect or expired code — please try again.",
+        "cart.otpResent": "A new code was sent.",
+        "cart.otpSendError": "Couldn't send the verification code — please try again.",
+        "cart.otpSending": "Sending code…",
+        "cart.otpVerifying": "Verifying…",
         "cart.decreaseQty": "Decrease quantity",
         "cart.increaseQty": "Increase quantity",
         "cart.invalidName": "Please enter your full name (first and last).",
@@ -1241,6 +1277,15 @@
         "cart.total": "סה\"כ",
         "cart.checkout": "שליחת בקשת הזמנה",
         "cart.checkoutNote": "ללא תשלום כרגע — ניצור איתכם קשר עם קישור לתשלום.",
+        "cart.otpLabel": "שלחנו קוד אימות בהודעת SMS למספר שהזנתם. הזינו אותו כאן כדי לשלוח את בקשת ההזמנה:",
+        "cart.otpVerify": "אימות ושליחה",
+        "cart.otpResend": "שליחת קוד חדש",
+        "cart.otpCancel": "ביטול",
+        "cart.otpInvalid": "קוד שגוי או שפג תוקפו — נסו שוב.",
+        "cart.otpResent": "נשלח קוד חדש.",
+        "cart.otpSendError": "שליחת קוד האימות נכשלה — נסו שוב.",
+        "cart.otpSending": "שולח קוד…",
+        "cart.otpVerifying": "מאמת…",
         "cart.decreaseQty": "הפחת כמות",
         "cart.increaseQty": "הוסף כמות",
         "cart.invalidName": "נא להזין שם מלא (שם פרטי ושם משפחה).",
@@ -1509,13 +1554,22 @@
     document.getElementById('cartOverlay').classList.remove('open');
     drawer.removeEventListener('keydown', cartPanelKeydown);
     lastFocusedBeforeCart?.focus();
+    // Abandoning the drawer mid-OTP goes back to the form step (keeping
+    // name/phone filled in) rather than leaving a stale, now-invalid code
+    // screen showing next time the cart opens.
+    const otpStep = document.getElementById('otpStep');
+    if (otpStep && otpStep.style.display !== 'none') backToFormStep();
   }
+  // Checkout is two steps: goToCheckout() validates the form and sends the
+  // SMS code (via window.sendOrderOtp, defined in the Firebase module
+  // script below), then verifyOtpAndSubmit() confirms the code and only
+  // then actually submits the order — the phone token proving the SMS was
+  // received travels with that second request.
   async function goToCheckout(){
     const cart = getCart();
     if (cart.length === 0) return;
     const fullName = document.getElementById('checkoutName').value.trim();
     const phone = document.getElementById('checkoutPhone').value.trim();
-    const company = document.getElementById('checkoutCompany').value;
     const t = I18N[currentLang];
     if (!fullName || fullName.split(' ').filter(Boolean).length < 2){
       alert(t['cart.invalidName']);
@@ -1528,22 +1582,87 @@
     const checkoutBtn = document.getElementById('cartCheckout');
     checkoutBtn.disabled = true;
     try {
+      await window.sendOrderOtp(phone);
+      document.getElementById('checkoutFormStep').style.display = 'none';
+      const otpStep = document.getElementById('otpStep');
+      otpStep.style.display = 'block';
+      document.getElementById('otpStatus').textContent = '';
+      document.getElementById('otpCode').value = '';
+      document.getElementById('otpCode').focus();
+    } catch(e) {
+      checkoutBtn.disabled = false;
+      showCheckoutBanner('failed', t['cart.otpSendError']);
+    }
+  }
+
+  // Switches the OTP step back to the form step without touching whatever
+  // the customer already typed — used when they cancel or abandon
+  // verification but might just retry rather than starting over.
+  function backToFormStep(){
+    document.getElementById('otpCode').value = '';
+    document.getElementById('otpStatus').textContent = '';
+    document.getElementById('otpStep').style.display = 'none';
+    document.getElementById('checkoutFormStep').style.display = '';
+    document.getElementById('cartCheckout').disabled = getCart().length === 0;
+  }
+
+  // Full reset after a successful order request — also clears name/phone
+  // since that order is done and the next one (if any) is a new customer.
+  function resetCheckoutForm(){
+    document.getElementById('checkoutName').value = '';
+    document.getElementById('checkoutPhone').value = '';
+    backToFormStep();
+  }
+
+  async function verifyOtpAndSubmit(){
+    const code = document.getElementById('otpCode').value.trim();
+    const otpStatus = document.getElementById('otpStatus');
+    const t = I18N[currentLang];
+    if (!/^\d{6}$/.test(code)){
+      otpStatus.textContent = t['cart.otpInvalid'];
+      return;
+    }
+    const verifyBtn = document.getElementById('otpVerifyBtn');
+    verifyBtn.disabled = true;
+    otpStatus.textContent = t['cart.otpVerifying'];
+    try {
+      const phoneToken = await window.verifyOrderOtp(code);
+      const cart = getCart();
+      const fullName = document.getElementById('checkoutName').value.trim();
+      const phone = document.getElementById('checkoutPhone').value.trim();
+      const company = document.getElementById('checkoutCompany').value;
       const res = await fetch(CHECKOUT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: cart, fullName, phone, company })
+        body: JSON.stringify({ items: cart, fullName, phone, company, phoneToken })
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || 'order request failed');
       saveCart([]);
       closeCart();
-      document.getElementById('checkoutName').value = '';
-      document.getElementById('checkoutPhone').value = '';
+      resetCheckoutForm();
       showCheckoutBanner('success', t['checkout.requestSuccess']);
     } catch(e) {
-      checkoutBtn.disabled = false;
-      showCheckoutBanner('failed', t['checkout.requestError']);
+      verifyBtn.disabled = false;
+      otpStatus.textContent = t['cart.otpInvalid'];
     }
+  }
+
+  async function resendOtp(){
+    const phone = document.getElementById('checkoutPhone').value.trim();
+    const otpStatus = document.getElementById('otpStatus');
+    const t = I18N[currentLang];
+    otpStatus.textContent = t['cart.otpSending'];
+    try {
+      await window.sendOrderOtp(phone);
+      otpStatus.textContent = t['cart.otpResent'];
+    } catch(e) {
+      otpStatus.textContent = t['cart.otpSendError'];
+    }
+  }
+
+  function cancelOtp(){
+    backToFormStep();
   }
   // Scoped to #bentoGrid only — the product-expanded panel's own
   // add-to-cart button is wired separately (see openProductDetail), so a
@@ -1577,6 +1696,9 @@
     document.getElementById('cartClose')?.addEventListener('click', closeCart);
     document.getElementById('cartOverlay')?.addEventListener('click', closeCart);
     document.getElementById('cartCheckout')?.addEventListener('click', goToCheckout);
+    document.getElementById('otpVerifyBtn')?.addEventListener('click', verifyOtpAndSubmit);
+    document.getElementById('otpResendBtn')?.addEventListener('click', resendOtp);
+    document.getElementById('otpCancelBtn')?.addEventListener('click', cancelOtp);
     document.getElementById('checkoutBannerClose')?.addEventListener('click', () => {
       document.getElementById('checkoutBanner')?.classList.remove('show');
       clearTimeout(checkoutBannerTimer);
@@ -1589,9 +1711,50 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
   import { getFirestore, collection, query, where, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
   import { firebaseConfig } from './assets/firebase-config.js';
 
+  const firebaseApp = initializeApp(firebaseConfig);
+  const db = getFirestore(firebaseApp);
+  const auth = getAuth(firebaseApp);
+
   function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  // ---------- phone verification (order-spam guard) ----------
+  // Firebase Phone Auth is used purely as a one-time proof-of-phone-number
+  // for order requests — not as a real account system. The client gets a
+  // short-lived ID token after the customer enters the SMS code; the
+  // server (api/create-order.js) verifies that token and checks its phone
+  // claim matches the number submitted with the order, then we sign out
+  // immediately so no session persists in the browser.
+  let recaptchaVerifier = null;
+  let otpConfirmation = null;
+
+  function getRecaptchaVerifier(){
+    if (!recaptchaVerifier) {
+      recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptchaContainer', { size: 'invisible' });
+    }
+    return recaptchaVerifier;
+  }
+
+  // Israeli local mobile format (0XXXXXXXXX) -> E.164 (+972XXXXXXXXX).
+  function phoneToE164(localPhone){
+    const digits = String(localPhone).replace(/\D/g, '');
+    return '+972' + digits.slice(1);
+  }
+
+  window.sendOrderOtp = async function(localPhone){
+    otpConfirmation = await signInWithPhoneNumber(auth, phoneToE164(localPhone), getRecaptchaVerifier());
+  };
+
+  window.verifyOrderOtp = async function(code){
+    if (!otpConfirmation) throw new Error('No verification in progress');
+    const result = await otpConfirmation.confirm(code);
+    const idToken = await result.user.getIdToken();
+    await signOut(auth);
+    otpConfirmation = null;
+    return idToken;
+  };
 
   let productsById = {};
 
@@ -1830,8 +1993,6 @@
     const grid = document.getElementById('bentoGrid');
     if (!grid) return;
     try {
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
       const q = query(collection(db, 'products'), where('active', '==', true), orderBy('order', 'asc'));
       const snap = await getDocs(q);
       productsById = {};
