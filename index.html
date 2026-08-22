@@ -142,8 +142,11 @@
     top:0;left:0;right:0;
     z-index:100;
     padding:22px 0;
-    transition:background 0.4s var(--ease), padding 0.4s var(--ease), box-shadow .4s var(--ease), border-color .4s var(--ease);
+    transition:background 0.4s var(--ease), padding 0.4s var(--ease), box-shadow .4s var(--ease), border-color .4s var(--ease), color .4s var(--ease);
     border-bottom:1px solid transparent;
+    --nav-fg:var(--cream);
+    --nav-fg-soft:rgba(246,241,231,0.82);
+    --nav-border:rgba(246,241,231,0.4);
   }
   header.scrolled{
     background:rgba(246,241,231,0.82);
@@ -151,6 +154,9 @@
     -webkit-backdrop-filter:blur(14px) saturate(160%);
     padding:14px 0;
     border-bottom:1px solid var(--line);
+    --nav-fg:var(--ink);
+    --nav-fg-soft:var(--ink-soft);
+    --nav-border:var(--line);
   }
   nav{
     display:flex;
@@ -167,6 +173,8 @@
     align-items:baseline;
     gap:6px;
     flex:none;
+    color:var(--nav-fg);
+    transition:color .4s var(--ease);
   }
   html[dir="rtl"] .logo{letter-spacing:0;}
   .logo .dot{color:var(--rust);}
@@ -176,6 +184,8 @@
     font-size:14px;
     font-weight:500;
     letter-spacing:0.01em;
+    color:var(--nav-fg);
+    transition:color .4s var(--ease);
   }
   .nav-links a{
     position:relative;
@@ -208,9 +218,10 @@
     font-weight:600;
     letter-spacing:0.03em;
     background:transparent;
-    border:1.5px solid var(--line);
+    border:1.5px solid var(--nav-border);
     border-radius:100px;
     padding:6px 6px;
+    transition:border-color .4s var(--ease);
   }
   .lang-switch button{
     font-family:var(--font-sans);
@@ -221,13 +232,12 @@
     cursor:pointer;
     padding:6px 12px;
     border-radius:100px;
-    color:var(--ink-soft);
+    color:var(--nav-fg-soft);
     transition:background .25s var(--ease), color .25s var(--ease);
   }
-  .lang-switch button.active{
-    background:var(--ink);
-    color:var(--cream);
-  }
+  .lang-switch button.active{background:var(--nav-fg);}
+  header.scrolled .lang-switch button.active{color:var(--cream);}
+  header:not(.scrolled) .lang-switch button.active{color:var(--ink);}
   .nav-cta{
     font-size:13.5px;
     font-weight:600;
@@ -246,21 +256,39 @@
     min-height:100svh;
     display:flex;
     flex-direction:column;
-    justify-content:center;
+    justify-content:flex-end;
     padding-top:110px;
-    padding-bottom:56px;
+    padding-bottom:88px;
     overflow:hidden;
+    color:var(--cream);
+    isolation:isolate;
+  }
+  .hero-media{
+    position:absolute;
+    inset:0;
+    z-index:0;
+  }
+  .hero-media img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center 38%;
+    display:block;
+  }
+  .hero-media::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(to top, rgba(10,8,6,0.88) 0%, rgba(10,8,6,0.55) 38%, rgba(10,8,6,0.18) 68%, rgba(10,8,6,0.32) 100%);
   }
 
   .hero-inner{
     position:relative;
     z-index:2;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    text-align:center;
-    max-width:760px;
-    margin:0 auto;
+  }
+  .hero-content{
+    max-width:640px;
   }
   .eyebrow{
     display:inline-flex;
@@ -270,8 +298,8 @@
     font-weight:600;
     letter-spacing:0.14em;
     text-transform:uppercase;
-    color:var(--rust-dark);
-    margin-bottom:22px;
+    color:var(--rust);
+    margin-bottom:20px;
   }
   html[dir="rtl"] .eyebrow{letter-spacing:0.02em;}
   .eyebrow::before{
@@ -279,47 +307,42 @@
     width:7px;height:7px;
     border-radius:50%;
     background:var(--rust);
-    box-shadow:0 0 0 4px rgba(214,69,92,0.18);
+    box-shadow:0 0 0 4px rgba(214,69,92,0.25);
   }
   html[dir="rtl"] .italic{font-style:normal; font-weight:700;}
-  .hero-logo{
-    display:block;
-    width:min(440px, 72vw);
-    height:auto;
-    margin:0 auto;
-  }
   .hero-sub{
-    margin-top:26px;
-    font-size:clamp(17px,2vw,20px);
-    line-height:1.55;
-    max-width:520px;
-    margin-left:auto;
-    margin-right:auto;
-    color:var(--ink-soft);
+    font-family:var(--font-serif);
+    font-weight:600;
+    font-size:clamp(30px,4.6vw,52px);
+    line-height:1.22;
+    letter-spacing:-0.01em;
+    color:var(--cream);
+    text-wrap:balance;
   }
+  .hero-rule{
+    width:64px;
+    height:1.5px;
+    background:rgba(246,241,231,0.4);
+    margin:28px 0;
+  }
+  html[dir="rtl"] .hero-rule{margin-inline-start:0;}
   .hero-actions{
-    margin-top:38px;
     display:flex;
     gap:16px;
     flex-wrap:wrap;
     align-items:center;
-    justify-content:center;
   }
-  .hero-visual{
-    margin-top:40px;
-    width:min(600px, 88vw);
-    aspect-ratio:16/9;
-    border-radius:var(--radius);
-    overflow:hidden;
-    box-shadow:0 30px 60px -30px rgba(28,23,18,0.35);
+  .hero .btn-ghost{
+    color:var(--cream);
+    border:1.5px solid rgba(246,241,231,0.4);
   }
-  .hero-visual img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    object-position:center 35%;
-    display:block;
+  .hero .btn-ghost:hover{border-color:var(--cream);}
+  .hero .btn-primary{
+    background:var(--rust);
+    color:var(--cream);
+    box-shadow:0 14px 30px -14px rgba(214,69,92,0.6);
   }
+  .hero .btn-primary:hover{background:var(--rust-dark);}
   .btn{
     font-family:var(--font-sans);
     font-weight:600;
@@ -361,12 +384,12 @@
     font-size:11px;
     letter-spacing:0.16em;
     text-transform:uppercase;
-    color:var(--ink-soft);
+    color:rgba(246,241,231,0.75);
   }
   html[dir="rtl"] .scroll-cue{letter-spacing:0.03em;}
   .scroll-cue .line{
     width:1px;height:34px;
-    background:linear-gradient(var(--ink-soft), transparent);
+    background:linear-gradient(rgba(246,241,231,0.75), transparent);
     animation:pulse-line 2.2s ease-in-out infinite;
   }
   @keyframes pulse-line{
@@ -938,7 +961,6 @@
     .container{padding:0 22px;}
     .nav-links{display:none;}
     section{padding:100px 0;}
-    .hero{padding-top:110px;}
     .waitlist-form{flex-direction:column;}
     .card{
       grid-template-columns:32px 1fr;
@@ -976,8 +998,8 @@
           <button type="button" class="lang-opt active" data-lang="he" onclick="setLang('he')">עברית</button>
         </div>
         <a href="#join" class="nav-cta" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
-        <button type="button" id="cartToggle" aria-label="עגלת קניות" style="position:relative;background:none;border:1.5px solid var(--line);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer">
-          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <button type="button" id="cartToggle" aria-label="עגלת קניות" style="position:relative;background:none;border:1.5px solid var(--nav-border);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .4s var(--ease)">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--nav-fg)" stroke-width="1.6" style="transition:stroke .4s var(--ease)"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
           <span id="cartCount" aria-hidden="true" style="display:none;position:absolute;top:-6px;left:-6px;background:var(--rust);color:var(--cream);font-size:11px;font-weight:700;border-radius:50%;width:18px;height:18px;align-items:center;justify-content:center"></span>
         </button>
       </div>
@@ -989,17 +1011,18 @@
 
   <!-- ================= HERO ================= -->
   <section class="hero">
+    <div class="hero-media">
+      <img src="assets/IMG_0078.png" alt="מכונת הקלייה שלנו, Bullet R2 Pro" data-i18n-alt="hero.visualAlt">
+    </div>
     <div class="container hero-inner">
-      <span class="eyebrow" data-i18n="hero.eyebrow">בקרוב</span>
-      <!-- Wordmark intentionally stays "I do." in both languages — see note in <head>. -->
-      <h1><img class="hero-logo" src="assets/logo.png" alt="i do — Coffee Co."></h1>
-      <p class="hero-sub" data-i18n-html="hero.sub">בית קלייה קטן. קולים, טועמים, ומתכוננים לפתוח.</p>
-      <div class="hero-actions">
-        <a href="#join" class="btn btn-primary" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
-        <a href="#story" class="btn btn-ghost" data-i18n="cta.readStory">הסיפור</a>
-      </div>
-      <div class="hero-visual">
-        <img src="assets/IMG_0078.png" alt="מכונת הקלייה שלנו, Bullet R2 Pro" data-i18n-alt="hero.visualAlt">
+      <div class="hero-content">
+        <span class="eyebrow" data-i18n="hero.eyebrow">בקרוב</span>
+        <h1 class="hero-sub" data-i18n-html="hero.sub">בית קלייה קטן. קולים, טועמים, ומתכוננים לפתוח.</h1>
+        <div class="hero-rule"></div>
+        <div class="hero-actions">
+          <a href="#join" class="btn btn-primary" data-i18n="cta.joinWaitlist">אני רוצה עדכונים!</a>
+          <a href="#story" class="btn btn-ghost" data-i18n="cta.readStory">הסיפור</a>
+        </div>
       </div>
     </div>
     <div class="scroll-cue">
@@ -1217,7 +1240,7 @@
         "cta.joinWaitlist": "Join the waitlist",
         "cta.readStory": "Read the story",
         "hero.eyebrow": "A new roastery — opening soon",
-        "hero.sub": "A small-batch promise, roasted daily. Founder-led coffee, built from the first bean — no shortcuts, no committee, just Ido and a roaster.",
+        "hero.sub": "A small-batch promise, roasted daily.",
         "hero.visualAlt": "Our roasting machine, the Bullet R2 Pro",
         "scroll.label": "Scroll",
         "story.kicker": "Our story",
