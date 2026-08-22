@@ -1855,11 +1855,20 @@
     return {
       ...p,
       name: (en && p.name_en) || p.name,
-      tag: (en && p.tag_en) || p.tag,
+      origin: (en && p.origin_en) || p.origin,
+      process: (en && p.process_en) || p.process,
+      variety: (en && p.variety_en) || p.variety,
       note: (en && p.note_en) || p.note,
       details: (en && p.details_en) || p.details,
       badge: (en && p.badge_en) || p.badge,
     };
+  }
+
+  // Builds the "Country · Process[ · Variety]" meta line from the split
+  // fields, skipping any part that's empty so an unused variety field
+  // doesn't leave a stray dot or blank slot on the product.
+  function originTag(p){
+    return [p.origin, p.process, p.variety].filter(Boolean).join(' · ');
   }
 
   const UI_STRINGS = {
@@ -1870,12 +1879,13 @@
 
   function cardHtml(p, i){
     p = localize(p);
-    const num = String(i + 1).padStart(2, '0');
+    const num = String(p.displayNumber || (i + 1)).padStart(2, '0');
     const thumb = p.image ? `<span class="thumb" style="background-image:url('${esc(p.image)}')"></span>` : '';
     const badge = p.badge ? `<span class="placeholder-badge">${esc(p.badge)}</span>` : '';
+    const tag = originTag(p);
     const metaParts = [
-      p.tag ? `<span class="tag-row">${esc(p.tag)}</span>` : '',
-      (p.tag && p.note) ? `<span class="meta-sep">·</span>` : '',
+      tag ? `<span class="tag-row">${esc(tag)}</span>` : '',
+      (tag && p.note) ? `<span class="meta-sep">·</span>` : '',
       p.note ? `<span class="note">${esc(p.note)}</span>` : '',
     ].filter(Boolean).join('');
     const meta = metaParts ? `<div class="card-meta">${metaParts}</div>` : '';
@@ -1901,6 +1911,7 @@
   function expandedBodyHtml(p){
     p = localize(p);
     const badge = p.badge ? `<div class="placeholder-badge">${esc(p.badge)}</div>` : '';
+    const tag = originTag(p);
     const note = p.note ? `<p class="expanded-note">${esc(p.note)}</p>` : '';
     const details = p.details ? `<p class="expanded-details">${esc(p.details)}</p>` : '';
     const buy = p.comingSoon
@@ -1908,7 +1919,7 @@
       : `<div class="buy-row"><span class="price">${p.price} ₪</span><button type="button" class="add-to-cart" data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}" data-image="${esc(p.image || '')}">${ui().addToCart}</button></div>`;
     return `<div class="product-expanded-body">
         ${badge}
-        <span class="tag-row">${esc(p.tag || '')}</span>
+        ${tag ? `<span class="tag-row">${esc(tag)}</span>` : ''}
         <h3 id="productExpandedTitle">${esc(p.name)}</h3>
         ${note}
         ${details}

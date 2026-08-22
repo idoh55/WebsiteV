@@ -228,7 +228,10 @@
       <div class="product-form">
         <label>שם <input id="f_name" value="${p.name || ''}"></label>
         <label>מחיר (₪) <input id="f_price" type="number" value="${p.price ?? ''}"></label>
-        <label>תגית (למשל: נטורל · דרום אמריקה) <input id="f_tag" value="${p.tag || ''}"></label>
+        <label>מספר תצוגה (R-0X בעמוד הראשי — ריק = מספור אוטומטי לפי סדר התצוגה) <input id="f_displayNumber" type="number" min="1" value="${p.displayNumber ?? ''}"></label>
+        <label>מדינה (מקור) <input id="f_origin" value="${p.origin || ''}" placeholder="לדוגמה: דרום אמריקה"></label>
+        <label>תהליך עיבוד <input id="f_process" value="${p.process || ''}" placeholder="לדוגמה: נטורל"></label>
+        <label>זן (אופציונלי — ריק = לא יוצג) <input id="f_variety" value="${p.variety || ''}" placeholder="לדוגמה: בורבון"></label>
         <label>מלאי <input id="f_stock" type="number" value="${p.stock ?? 0}"></label>
         <label>סדר תצוגה <input id="f_order" type="number" value="${p.order ?? 0}"></label>
         <label class="full">תמונה (URL, כולל קישורי Google Drive)
@@ -240,7 +243,9 @@
         <label class="full">תג מיוחד (אופציונלי, למשל "מהדורה מוגבלת") <input id="f_badge" value="${p.badge || ''}"></label>
         <div class="section-note">גרסה באנגלית (אופציונלי — מוצג כשהאתר במצב EN; ריק = יוצג הטקסט העברי)</div>
         <label>Name (EN) <input id="f_name_en" value="${p.name_en || ''}"></label>
-        <label>Tag (EN) <input id="f_tag_en" value="${p.tag_en || ''}"></label>
+        <label>Origin (EN) <input id="f_origin_en" value="${p.origin_en || ''}"></label>
+        <label>Process (EN) <input id="f_process_en" value="${p.process_en || ''}"></label>
+        <label>Variety (EN) <input id="f_variety_en" value="${p.variety_en || ''}"></label>
         <label class="full">Short description (EN) <textarea id="f_note_en" rows="2">${p.note_en || ''}</textarea></label>
         <label class="full">Extended details (EN) <textarea id="f_details_en" rows="4">${p.details_en || ''}</textarea></label>
         <label class="full">Badge (EN) <input id="f_badge_en" value="${p.badge_en || ''}"></label>
@@ -281,7 +286,10 @@
     const data = {
       name: document.getElementById('f_name').value.trim(),
       price: Number(document.getElementById('f_price').value) || 0,
-      tag: document.getElementById('f_tag').value.trim(),
+      displayNumber: document.getElementById('f_displayNumber').value.trim() ? Number(document.getElementById('f_displayNumber').value) : null,
+      origin: document.getElementById('f_origin').value.trim(),
+      process: document.getElementById('f_process').value.trim(),
+      variety: document.getElementById('f_variety').value.trim(),
       stock: Number(document.getElementById('f_stock').value) || 0,
       order: Number(document.getElementById('f_order').value) || 0,
       image: document.getElementById('f_image').value.trim(),
@@ -289,7 +297,9 @@
       details: document.getElementById('f_details').value.trim(),
       badge: document.getElementById('f_badge').value.trim(),
       name_en: document.getElementById('f_name_en').value.trim(),
-      tag_en: document.getElementById('f_tag_en').value.trim(),
+      origin_en: document.getElementById('f_origin_en').value.trim(),
+      process_en: document.getElementById('f_process_en').value.trim(),
+      variety_en: document.getElementById('f_variety_en').value.trim(),
       note_en: document.getElementById('f_note_en').value.trim(),
       details_en: document.getElementById('f_details_en').value.trim(),
       badge_en: document.getElementById('f_badge_en').value.trim(),
