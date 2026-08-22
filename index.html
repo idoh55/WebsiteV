@@ -772,6 +772,15 @@
     margin-left:auto;
     margin-right:auto;
   }
+  /* Bot honeypot — invisible to sighted users and skipped by screen readers,
+     but present in the DOM for form-filling bots to trip. */
+  .hp-field{
+    position:absolute;
+    width:1px; height:1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+  }
   .waitlist-form input[type="email"]{
     flex:1;
     padding:16px 20px;
@@ -1021,6 +1030,10 @@
 
       <form class="waitlist-form reveal is-visible" id="waitlistForm">
         <input type="email" id="waitlistEmail" data-i18n-placeholder="waitlist.emailPlaceholder" placeholder="Your Email" required="" aria-label="Email address">
+        <div class="hp-field" aria-hidden="true">
+          <label for="waitlistCompany">Company</label>
+          <input type="text" id="waitlistCompany" name="company" tabindex="-1" autocomplete="off">
+        </div>
         <button type="submit" data-i18n="waitlist.submit">הצטרפו לרשימה</button>
       </form>
       <p class="waitlist-fine reveal is-visible" data-i18n="waitlist.fine"><br></p>
@@ -1346,13 +1359,14 @@
     const emailInput = document.getElementById('waitlistEmail');
     const email = emailInput.value.trim();
     if (!email) return;
+    const company = document.getElementById('waitlistCompany').value;
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, company }),
       });
       if (!res.ok) throw new Error('subscribe failed');
       form.style.display = 'none';
